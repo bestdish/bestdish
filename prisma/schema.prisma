@@ -1,0 +1,82 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model City {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  description String?
+  photoUrl    String?
+  restaurants Restaurant[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Restaurant {
+  id            String     @id @default(cuid())
+  name          String
+  slug          String     @unique
+  description   String?
+  address       String?
+  cuisine       String?
+  rating        Float?
+  priceRange    String?
+  phone         String?
+  website       String?
+  city          City       @relation(fields: [cityId], references: [id])
+  cityId        String
+  dishes        Dish[]
+  googlePlaceId String?    @unique
+  photoUrl      String?
+  menuUrl       String?
+  isActive      Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model Dish {
+  id              String     @id @default(cuid())
+  name            String
+  description     String?
+  price           Float?
+  cuisine         String?
+  slug            String     @unique
+  restaurant      Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId    String
+  photoUrl        String?
+  isBest          Boolean    @default(false)
+  isFeatured      Boolean    @default(false)
+  editorialQuote  String?    @db.Text
+  editorialSource String?
+  editorialUrl    String?
+  faqAnswers      Json?
+  reviews         Review[]
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  user       User?    @relation(fields: [userId], references: [id])
+  userId     String?
+  authorName String
+  dish       Dish     @relation(fields: [dishId], references: [id])
+  dishId     String
+  rating     Int?
+  comment    String?
+  approved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model User {
+  id       String   @id @default(cuid())
+  email    String   @unique
+  name     String?
+  reviews  Review[]
+}
