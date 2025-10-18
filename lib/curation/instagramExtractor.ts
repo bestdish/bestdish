@@ -146,7 +146,7 @@ export async function extractInstagramImage(postUrl: string): Promise<string | n
     }
     
     // Method 6: Try to find image in JSON-LD data
-    const jsonLdMatch = html.match(/<script type="application\/ld\+json">(.+?)<\/script>/s)
+    const jsonLdMatch = html.match(/<script type="application\/ld\+json">([\s\S]+?)<\/script>/)
     if (jsonLdMatch) {
       try {
         const jsonData = JSON.parse(jsonLdMatch[1])
