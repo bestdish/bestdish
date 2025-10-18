@@ -59,7 +59,7 @@ export async function enrichRestaurantData(
  * Extract restaurant details from scraped articles
  */
 function extractRestaurantDetails(
-  articles: Array<{ url: string; title: string; content: string }>,
+  articles: Array<{ url: string; source?: string; content: string }>,
   restaurantName: string,
   city: string
 ) {
@@ -70,7 +70,7 @@ function extractRestaurantDetails(
   let rating: number | null = null
   let name = restaurantName
   
-  const combinedText = articles.map(a => `${a.title}\n${a.content}`).join('\n')
+  const combinedText = articles.map(a => `${a.source || ''}\n${a.content}`).join('\n')
   
   // Extract address (UK format) - multiple patterns
   const addressPatterns = [
@@ -174,13 +174,13 @@ function extractRestaurantDetails(
     }
   }
   
-  // Try to extract proper restaurant name from titles
+  // Try to extract proper restaurant name from sources
   for (const article of articles) {
-    if (article.title.toLowerCase().includes('review')) {
+    if (article.source && article.source.toLowerCase().includes('review')) {
       // Extract name before common separators
-      const titleParts = article.title.split(/[-–—|:]/)[0].trim()
-      if (titleParts.length > 3 && titleParts.length < 50) {
-        name = titleParts
+      const sourceParts = article.source.split(/[-–—|:]/)[0].trim()
+      if (sourceParts.length > 3 && sourceParts.length < 50) {
+        name = sourceParts
         break
       }
     }
