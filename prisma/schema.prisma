@@ -19,25 +19,26 @@ model City {
 }
 
 model Restaurant {
-  id            String     @id @default(cuid())
-  name          String
-  slug          String     @unique
-  description   String?
-  address       String?
-  cuisine       String?
-  rating        Float?
-  priceRange    String?
-  phone         String?
-  website       String?
-  city          City       @relation(fields: [cityId], references: [id])
-  cityId        String
-  dishes        Dish[]
-  googlePlaceId String?    @unique
-  photoUrl      String?
-  menuUrl       String?
-  isActive      Boolean    @default(true)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  id              String     @id @default(cuid())
+  name            String
+  slug            String     @unique
+  description     String?
+  address         String?
+  cuisine         String?
+  rating          Float?
+  priceRange      String?
+  phone           String?
+  website         String?
+  instagramHandle String?
+  city            City       @relation(fields: [cityId], references: [id])
+  cityId          String
+  dishes          Dish[]
+  googlePlaceId   String?    @unique
+  photoUrl        String?
+  menuUrl         String?
+  isActive        Boolean    @default(true)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 }
 
 model Dish {
