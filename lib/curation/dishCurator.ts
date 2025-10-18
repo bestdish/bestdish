@@ -204,7 +204,8 @@ export async function curateDish(input: CurateDishInput): Promise<CurateDishResu
       city.name,
       normalizedCuisine || undefined,
       aiContent.price || undefined,
-      restaurantData.website || undefined
+      restaurantData.website || undefined,
+      restaurantData.address || undefined
     )
     progress.push(`  ✓ Generated ${faqs.length} FAQ items`)
     
