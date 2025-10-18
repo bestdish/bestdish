@@ -202,10 +202,10 @@ export async function curateDish(input: CurateDishInput): Promise<CurateDishResu
       restaurantData.name,
       input.dishName,
       city.name,
-      normalizedCuisine || undefined,
-      aiContent.price || undefined,
-      restaurantData.website || undefined,
-      restaurantData.address || undefined
+      normalizedCuisine || null,
+      aiContent.price || null,
+      restaurantData.website || null,
+      restaurantData.address || null
     )
     progress.push(`  ✓ Generated ${faqs.length} FAQ items`)
     
