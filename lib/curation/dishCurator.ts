@@ -93,6 +93,7 @@ export async function curateDish(input: CurateDishInput): Promise<CurateDishResu
           address: restaurantData.address,
           website: restaurantData.website,
           cuisine: restaurantData.cuisine,
+          instagramHandle: input.instagramHandle,
           isActive: true
         }
       })
@@ -108,6 +109,7 @@ export async function curateDish(input: CurateDishInput): Promise<CurateDishResu
           address: restaurantData.address,
           website: restaurantData.website,
           cuisine: restaurantData.cuisine,
+          instagramHandle: input.instagramHandle,
           cityId: city.id,
           isActive: true
         }

@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     const instagramData = {
       dishName: dish.name,
       restaurantName: dish.restaurant.name,
-      restaurantInstagram: extractInstagramHandle(dish.restaurant.name),
+      restaurantInstagram: dish.restaurant.instagramHandle || extractInstagramHandle(dish.restaurant.name),
       description: dish.description || '',
       editorialQuote: dish.editorialQuote || '',
       price: dish.price,
