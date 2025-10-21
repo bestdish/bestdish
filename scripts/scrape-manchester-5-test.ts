@@ -15,63 +15,46 @@ interface RestaurantLead {
 }
 
 /**
- * Find top restaurants from Google (test version - 5 only)
+ * Find top restaurants from Google Places (test version - 5 only)
  */
 async function findTop5Restaurants(): Promise<RestaurantLead[]> {
-  console.log('🔍 Finding top Manchester restaurants (test: 5 only)...')
+  console.log('🔍 Finding top Manchester restaurants from Google Places (test: 5 only)...')
   
-  const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_API_KEY
-  const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY
   
-  if (!apiKey || !searchEngineId) {
-    throw new Error('Google Custom Search not configured')
+  if (!apiKey) {
+    throw new Error('GOOGLE_PLACES_API_KEY not configured')
   }
   
-  const restaurants: RestaurantLead[] = []
-  const query = 'best restaurants Manchester 2024'
+  // Just get first page (20 results)
+  const query = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=best+restaurants+in+Manchester+UK&type=restaurant&key=${apiKey}`
   
-  console.log(`  Searching: "${query}"`)
+  const response = await fetch(query)
+  const data = await response.json()
   
-  try {
-    const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${encodeURIComponent(query)}&num=10`
-    const response = await fetch(url)
-    const data = await response.json()
-    
-    if (data.items) {
-      for (const item of data.items) {
-        const text = `${item.title} ${item.snippet}`
-        
-        // Extract restaurant names from text
-        const matches = text.match(/([A-Z][a-zA-Z\s&'-]+?)(?=\s(?:Restaurant|Cafe|Bar|Kitchen|House|Room|Grill|Bistro|Brasserie|Eatery|\d|,|in|on|at|-|is|has|serves|offers|known))/g)
-        
-        if (matches) {
-          for (const match of matches) {
-            const name = match.trim()
-            if (name.length > 3 && name.length < 50 && !restaurants.some(r => r.name.toLowerCase() === name.toLowerCase())) {
-              restaurants.push({ name })
-            }
-          }
-        }
-      }
+  if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
+    console.log(`  ⚠️  API status: ${data.status}`)
+    if (data.error_message) {
+      console.log(`  Error: ${data.error_message}`)
     }
-    
-    if (restaurants.length < 5) {
-      // Add some well-known Manchester restaurants as fallback
-      const fallbacks = ['Dishoom', 'Hawksmoor', 'Elnecot', 'Bundobust', 'Mana']
-      for (const name of fallbacks) {
-        if (!restaurants.some(r => r.name.toLowerCase() === name.toLowerCase())) {
-          restaurants.push({ name })
-        }
-        if (restaurants.length >= 5) break
-      }
-    }
-    
-  } catch (error) {
-    console.error(`  Error:`, error)
+    throw new Error(`Google Places API error: ${data.status}`)
   }
   
-  console.log(`✓ Found ${restaurants.length} restaurants`)
-  return restaurants.slice(0, 5)
+  const allPlaces = data.results || []
+  console.log(`  ✓ Got ${allPlaces.length} results from Google Places`)
+  
+  // Filter to high-rated restaurants and take top 5
+  const topPlaces = allPlaces
+    .filter((p: any) => p.rating && p.rating >= 4.0 && p.user_ratings_total >= 50)
+    .sort((a: any, b: any) => (b.rating || 0) - (a.rating || 0))
+    .slice(0, 5)
+  
+  console.log(`✓ Filtered to ${topPlaces.length} highly-rated restaurants (4.0⭐+, 50+ reviews)`)
+  
+  return topPlaces.map((p: any) => ({
+    name: p.name,
+    address: p.formatted_address || p.vicinity
+  }))
 }
 
 /**

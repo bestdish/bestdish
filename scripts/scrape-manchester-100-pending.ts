@@ -15,69 +15,60 @@ interface RestaurantLead {
 }
 
 /**
- * Find top 100 Manchester restaurants from Google
+ * Find top 100 Manchester restaurants from Google Places API
  */
 async function findTop100Restaurants(): Promise<RestaurantLead[]> {
-  console.log('🔍 Finding top 100 Manchester restaurants...')
+  console.log('🔍 Finding top 100 Manchester restaurants from Google Places...')
   
-  const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_API_KEY
-  const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY
   
-  if (!apiKey || !searchEngineId) {
-    throw new Error('Google Custom Search not configured')
+  if (!apiKey) {
+    throw new Error('GOOGLE_PLACES_API_KEY not configured')
   }
   
-  const restaurants: RestaurantLead[] = []
-  const queries = [
-    'best restaurants Manchester 2024',
-    'top rated restaurants Manchester',
-    'must try restaurants Manchester',
-    'Manchester fine dining',
-    'Manchester food guide best dishes',
-    'Manchester restaurants awards',
-    'best places to eat Manchester',
-    'Manchester restaurant guide',
-    'top 50 restaurants Manchester',
-    'Manchester food scene best'
-  ]
+  let allPlaces: any[] = []
+  let nextPageToken: string | undefined = undefined
+  let pageNum = 0
   
-  for (const query of queries) {
-    console.log(`  Searching: "${query}"`)
+  // Fetch restaurants from Google Places Text Search
+  while (pageNum < 6 && allPlaces.length < 200) { // Get 200 to have enough after filtering
+    const query = nextPageToken
+      ? `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${nextPageToken}&key=${apiKey}`
+      : `https://maps.googleapis.com/maps/api/place/textsearch/json?query=best+restaurants+in+Manchester+UK&type=restaurant&key=${apiKey}`
     
-    try {
-      const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${encodeURIComponent(query)}&num=10`
-      const response = await fetch(url)
-      const data = await response.json()
-      
-      if (data.items) {
-        for (const item of data.items) {
-          const text = `${item.title} ${item.snippet}`
-          
-          // Extract restaurant names from text
-          const matches = text.match(/([A-Z][a-zA-Z\s&'-]+?)(?=\s(?:Restaurant|Cafe|Bar|Kitchen|House|Room|Grill|Bistro|Brasserie|Eatery|\d|,|in|on|at|-|is|has|serves|offers|known))/g)
-          
-          if (matches) {
-            for (const match of matches) {
-              const name = match.trim()
-              if (name.length > 3 && name.length < 50 && !restaurants.some(r => r.name.toLowerCase() === name.toLowerCase())) {
-                restaurants.push({ name })
-              }
-            }
-          }
-        }
-      }
-      
-      // Rate limit
-      await new Promise(resolve => setTimeout(resolve, 1000))
-    } catch (error) {
-      console.error(`  Error searching "${query}":`, error)
+    const response = await fetch(query)
+    const data = await response.json()
+    
+    if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
+      console.log(`  ⚠️  API status: ${data.status}`)
+      break
     }
     
-    if (restaurants.length >= 100) break
+    allPlaces = [...allPlaces, ...(data.results || [])]
+    console.log(`  Page ${pageNum + 1}: +${data.results?.length || 0} (total: ${allPlaces.length})`)
+    
+    nextPageToken = data.next_page_token
+    if (!nextPageToken) break
+    
+    pageNum++
+    // Google requires 2s delay between page requests
+    if (nextPageToken) {
+      await new Promise(resolve => setTimeout(resolve, 2000))
+    }
   }
   
-  console.log(`✓ Found ${restaurants.length} unique restaurants`)
-  return restaurants.slice(0, 100)
+  // Filter to high-rated restaurants (4.0+ stars, 50+ reviews)
+  const topPlaces = allPlaces
+    .filter(p => p.rating && p.rating >= 4.0 && p.user_ratings_total >= 50)
+    .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+    .slice(0, 100)
+  
+  console.log(`✓ Found ${topPlaces.length} highly-rated restaurants (4.0⭐+, 50+ reviews)`)
+  
+  return topPlaces.map(p => ({
+    name: p.name,
+    address: p.formatted_address || p.vicinity
+  }))
 }
 
 /**
