@@ -12,6 +12,9 @@ import { normalizeCuisine } from '../lib/curation/cuisineMapper'
 interface RestaurantLead {
   name: string
   address?: string
+  placeId: string
+  rating?: number
+  totalRatings?: number
 }
 
 /**
@@ -67,8 +70,46 @@ async function findTop100Restaurants(): Promise<RestaurantLead[]> {
   
   return topPlaces.map(p => ({
     name: p.name,
-    address: p.formatted_address || p.vicinity
+    address: p.formatted_address || p.vicinity,
+    placeId: p.place_id,
+    rating: p.rating,
+    totalRatings: p.user_ratings_total
   }))
+}
+
+/**
+ * Get detailed place information from Google Places API
+ */
+async function getPlaceDetails(placeId: string, apiKey: string): Promise<any> {
+  try {
+    const fields = [
+      'name',
+      'formatted_address',
+      'website',
+      'formatted_phone_number',
+      'url', // Google Maps URL
+      'types'
+    ].join(',')
+    
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${apiKey}`
+    )
+    
+    if (!response.ok) {
+      return null
+    }
+    
+    const data = await response.json()
+    
+    if (data.status !== 'OK') {
+      return null
+    }
+    
+    return data.result
+  } catch (error) {
+    console.error(`Error fetching place details:`, error)
+    return null
+  }
 }
 
 /**
@@ -120,11 +161,22 @@ function extractInstagramHandle(content: string, restaurantName: string): { hand
 /**
  * Process a single restaurant
  */
-async function processRestaurant(lead: RestaurantLead, city: any, index: number, total: number): Promise<boolean> {
+async function processRestaurant(lead: RestaurantLead, city: any, index: number, total: number, apiKey: string): Promise<boolean> {
   console.log(`\n[${index}/${total}] 📍 ${lead.name}`)
   
   try {
-    // Step 1: Search for restaurant info
+    // Step 1: Get detailed place info from Google Places API
+    console.log(`  🏢 Fetching place details...`)
+    const placeDetails = await getPlaceDetails(lead.placeId, apiKey)
+    
+    const website = placeDetails?.website || null
+    const phone = placeDetails?.formatted_phone_number || null
+    const googleMapsUrl = placeDetails?.url || null
+    
+    if (website) console.log(`  🌐 Website: ${website}`)
+    if (phone) console.log(`  📞 Phone: ${phone}`)
+    
+    // Step 2: Search for restaurant info
     console.log(`  🔍 Searching web...`)
     const articles = await searchRestaurantArticles(lead.name, city.name)
     
@@ -161,21 +213,9 @@ async function processRestaurant(lead: RestaurantLead, city: any, index: number,
     console.log(`  ✓ Identified: ${analysis.bestDish}`)
     if (analysis.price) console.log(`  💰 Price: £${analysis.price.toFixed(2)}`)
     
-    // Step 5: Extract restaurant details from content (supplement Google Places data)
-    // Use Google Places address as primary, fallback to regex extraction
-    let address = lead.address || null
-    if (!address) {
-      const addressMatch = combinedContent.match(/\d+\s+[A-Z][a-zA-Z\s]+,\s*Manchester[^,]*M\d+\s*\d[A-Z]{2}/i)
-      address = addressMatch ? addressMatch[0] : null
-    }
-    
-    // Extract website from content
-    const websiteMatch = combinedContent.match(/https?:\/\/(?:www\.)?([a-zA-Z0-9-]+\.[a-zA-Z]{2,})/i)
-    let website = websiteMatch ? websiteMatch[0] : null
-    if (website && (website.includes('google') || website.includes('facebook') || website.includes('instagram'))) {
-      website = null
-    }
-    
+    // Step 5: Use Google Places data (already have address from Step 1)
+    const address = lead.address || null
+    // Website and phone already extracted in Step 1
     if (address) console.log(`  📍 Address: ${address.substring(0, 50)}...`)
     
     // Step 6: Normalize cuisine
@@ -213,8 +253,12 @@ async function processRestaurant(lead: RestaurantLead, city: any, index: number,
           slug: restaurantSlug,
           address: address,
           website: website,
+          phone: phone,
           cuisine: cuisine,
           instagramHandle: instagram.handle,
+          rating: lead.rating,
+          googlePlaceId: lead.placeId,
+          menuUrl: googleMapsUrl, // Store Google Maps URL in menuUrl field
           cityId: city.id,
           isActive: true
         }
@@ -226,8 +270,12 @@ async function processRestaurant(lead: RestaurantLead, city: any, index: number,
         data: {
           address: address || restaurant.address,
           website: website || restaurant.website,
+          phone: phone || restaurant.phone,
           cuisine: cuisine || restaurant.cuisine,
-          instagramHandle: instagram.handle || restaurant.instagramHandle
+          instagramHandle: instagram.handle || restaurant.instagramHandle,
+          rating: lead.rating || restaurant.rating,
+          googlePlaceId: lead.placeId || restaurant.googlePlaceId,
+          menuUrl: googleMapsUrl || restaurant.menuUrl
         }
       })
     }
@@ -299,12 +347,18 @@ async function main() {
     const restaurants = await findTop100Restaurants()
     console.log(`\n📋 Processing ${restaurants.length} restaurants...\n`)
     
+    // Get API key for place details
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY
+    if (!apiKey) {
+      throw new Error('GOOGLE_PLACES_API_KEY not configured')
+    }
+    
     let successCount = 0
     let failCount = 0
     
     // Process each restaurant
     for (let i = 0; i < restaurants.length; i++) {
-      const success = await processRestaurant(restaurants[i], city, i + 1, restaurants.length)
+      const success = await processRestaurant(restaurants[i], city, i + 1, restaurants.length, apiKey)
       
       if (success) {
         successCount++

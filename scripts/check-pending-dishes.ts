@@ -27,8 +27,12 @@ async function checkPendingDishes() {
     console.log(`\nRestaurant: ${dish.restaurant.name}`)
     console.log(`  Address: ${dish.restaurant.address || 'NULL'}`)
     console.log(`  Website: ${dish.restaurant.website || 'NULL'}`)
+    console.log(`  Phone: ${dish.restaurant.phone || 'NULL'}`)
+    console.log(`  Menu/Maps URL: ${dish.restaurant.menuUrl || 'NULL'}`)
     console.log(`  Cuisine: ${dish.restaurant.cuisine || 'NULL'}`)
     console.log(`  Instagram: ${dish.restaurant.instagramHandle || 'NULL'}`)
+    console.log(`  Google Place ID: ${dish.restaurant.googlePlaceId || 'NULL'}`)
+    console.log(`  Rating: ${dish.restaurant.rating || 'NULL'}`)
     console.log(`  City: ${dish.restaurant.city.name}`)
     console.log('\n---\n')
   }
