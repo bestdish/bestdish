@@ -1,0 +1,34 @@
+# ============================================
+# LOCAL DEVELOPMENT ENVIRONMENT
+# IMPORTANT: Now uses PRODUCTION database
+# Both local and live use the same database
+# ============================================
+
+# Production Database (used for both local and live)
+DATABASE_URL=postgresql://postgres.yoeguahpdrtctrvaheer:C8uy578mOyl7TA9p@aws-1-eu-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true
+DIRECT_URL=postgresql://postgres:C8uy578mOyl7TA9p@db.yoeguahpdrtctrvaheer.supabase.co:5432/postgres
+
+# Production Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://yoeguahpdrtctrvaheer.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvZWd1YWhwZHJ0Y3RydmFoZWVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2NTMzMTUsImV4cCI6MjA3NjIyOTMxNX0.vfxErWxhilqam8CmnLmxL5oQLQrSjsRjjE9fuRG8hPQ
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvZWd1YWhwZHJ0Y3RydmFoZWVyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MDY1MzMxNSwiZXhwIjoyMDc2MjI5MzE1fQ.vfxErWxhilqam8CmnLmxL5oQLQrSjsRjjE9fuRG8hPQ
+
+# API Keys
+GOOGLE_PLACES_API_KEY=AIzaSyA-m8EdzNzt5lCR-LPRa6Xj1UzwkTwHZk0
+GOOGLE_CUSTOM_SEARCH_API_KEY=AIzaSyAWMTp0jpZMQcf81Ip28aOJzSmoV_oNbtU
+GOOGLE_SEARCH_ENGINE_ID=b7cd7b65f9da24548
+GEMINI_API_KEY=AIzaSyAG7kr2gu_zGkrLmlHM_1lTl-5Jof6m0DU
+
+# Admin Credentials
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=BestDish2025!Secure#Admin
+
+# Environment
+NEXT_PUBLIC_URL=http://localhost:3000
+
+# ============================================
+# NOTE: Development database has been REMOVED
+# We now use a single production database for simplicity
+# Changes made locally are LIVE immediately
+# Always export before major changes!
+# ============================================

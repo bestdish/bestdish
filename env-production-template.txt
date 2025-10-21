@@ -1,0 +1,28 @@
+# Production Database & Supabase Credentials
+# Copy this to .env.production.local and fill in your PRODUCTION values
+# .env.production.local is gitignored for security
+
+# Production Database (Supabase or separate PostgreSQL)
+PROD_DATABASE_URL="postgresql://postgres.XXXXX:PASSWORD@aws-0-region.pooler.supabase.com:6543/postgres?pgbouncer=true"
+
+# Production Supabase
+PROD_SUPABASE_URL="https://XXXXX.supabase.co"
+PROD_SUPABASE_SERVICE_ROLE_KEY="eyJhbGc..."
+
+# These are the SAME credentials used in Vercel for your live site
+# Just prefix them with PROD_ so scripts know which environment to use
+
+# ===================================================================
+# Then update your .env file for DEVELOPMENT with separate credentials
+# ===================================================================
+
+# Development Database (local or separate Supabase project)
+DEV_DATABASE_URL="postgresql://postgres.YYYYY:PASSWORD@aws-0-region.pooler.supabase.com:6543/postgres?pgbouncer=true"
+DATABASE_URL="${DEV_DATABASE_URL}"  # Points to dev by default
+
+# Development Supabase
+DEV_SUPABASE_URL="https://YYYYY.supabase.co"
+DEV_SUPABASE_SERVICE_ROLE_KEY="eyJhbGc..."
+NEXT_PUBLIC_SUPABASE_URL="${DEV_SUPABASE_URL}"
+SUPABASE_SERVICE_ROLE_KEY="${DEV_SUPABASE_SERVICE_ROLE_KEY}"
+

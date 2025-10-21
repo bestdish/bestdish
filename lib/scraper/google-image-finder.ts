@@ -214,29 +214,32 @@ async function verifySingleImage(
     const genAI = new GoogleGenerativeAI(apiKey)
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
     
-    const prompt = `Is this image a close-up photograph of FOOD/DISH specifically?
+    const prompt = `You are a strict food photography validator. Analyze this image URL and determine if it shows ACTUAL PREPARED FOOD as the primary subject.
 
 IMAGE URL: ${imageUrl}
 
-CRITICAL REQUIREMENTS - ALL must be true for YES:
-1. The image shows ACTUAL FOOD/DISH as the MAIN subject
-2. The food takes up most of the frame (close-up or plate shot)
-3. It is NOT a restaurant interior, exterior, or dining room
-4. It is NOT people eating or holding food
-5. It is NOT a logo, sign, or text
-6. The food is clearly visible, well-lit, and appetizing
+REQUIRED FOR YES (ALL must be true):
+1. Image shows PLATED FOOD or PREPARED DISH as 80%+ of the frame
+2. Food is clearly visible, in focus, well-lit, and looks appetizing
+3. Food is on a plate, bowl, or serving vessel (not raw ingredients alone)
 
-AUTOMATIC NO if image shows:
-- Restaurant buildings, facades, or signage
-- Empty tables, chairs, or dining room interiors
-- People, hands, or diners
-- Bar areas, cocktails only (unless drink IS the dish)
-- Menus, logos, or promotional graphics
-- Blurry or unclear food
+AUTOMATIC NO IF IMAGE SHOWS:
+❌ Restaurant buildings, exteriors, or storefronts
+❌ Restaurant interiors (tables, chairs, empty dining rooms)
+❌ Signs, logos, or text-heavy images
+❌ People eating, hands holding food, or diners
+❌ Menus, wine lists, or promotional materials
+❌ Bar interiors or empty cocktail glasses (unless drink IS the main dish)
+❌ Kitchen equipment or appliances
+❌ Raw ingredients before cooking (unless that IS the dish presentation)
+❌ Blurry, dark, or unclear images where food isn't recognizable
+❌ Stock photos or generic food (not restaurant-specific)
 
-Answer ONLY "YES" if the image is a proper FOOD PHOTO.
-Answer "NO" for everything else.
-Return only YES or NO, nothing else.`
+STRICT RULE: If you have ANY doubt, answer NO.
+
+Respond with ONLY:
+"YES" - if it's definitely a high-quality photo of PREPARED FOOD as the main subject
+"NO" - for everything else (interiors, signs, people, unclear images, etc.)`
     
     const result = await model.generateContent(prompt)
     const response = result.response.text().trim().toUpperCase()

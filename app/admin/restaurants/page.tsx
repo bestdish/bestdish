@@ -1,9 +1,11 @@
 import { prisma } from '@/lib/prisma'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Plus, Edit, MapPin, Store, Image as ImageIcon } from 'lucide-react'
+import { Edit, MapPin, Image as ImageIcon, Users } from 'lucide-react'
 import Link from 'next/link'
 import { getPublicImageUrl } from '@/lib/imageUrl'
+
+export const dynamic = 'force-dynamic'
 
 export default async function AdminRestaurantsPage() {
   const restaurants = await prisma.restaurant.findMany({
@@ -30,81 +32,56 @@ export default async function AdminRestaurantsPage() {
     return acc
   }, {} as Record<string, typeof restaurants>)
 
-  const totalRestaurants = restaurants.length
-  const totalChains = restaurants.filter(r => r.isChain).length
-  const totalIndependent = restaurants.filter(r => !r.isChain).length
+  const totalDishes = restaurants.reduce((sum, r) => sum + r.dishes.length, 0)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-6">
+    <div className="min-h-screen bg-gray-950 p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-100">Restaurant Management</h1>
-            <p className="text-gray-400 text-lg mt-2">
-              Manage restaurants and their best dishes
-            </p>
-          </div>
-          
-          <Link href="/admin/restaurants/new">
-            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-6 py-6">
-              <Plus className="h-5 w-5 mr-2" />
-              Add Restaurant
-            </Button>
-          </Link>
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold text-gray-100">Dish Management</h1>
+          <p className="text-gray-400 text-lg">
+            View and manage all curated dishes by city
+          </p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-indigo-900/50 rounded-xl border border-indigo-600/30">
-                  <Store className="h-6 w-6 text-indigo-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-100">{totalRestaurants}</p>
-                  <p className="text-sm text-gray-400">Total Restaurants</p>
-                </div>
+        <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-400">Total Curated Dishes</p>
+                <p className="text-3xl font-bold text-gray-100">{totalDishes}</p>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-purple-900/50 rounded-xl border border-purple-600/30">
-                  <MapPin className="h-6 w-6 text-purple-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-100">{totalIndependent}</p>
-                  <p className="text-sm text-gray-400">Independent</p>
-                </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10 border border-purple-500/20">
+                <Users className="h-6 w-6 text-purple-400" />
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-amber-900/50 rounded-xl border border-amber-600/30">
-                  <Store className="h-6 w-6 text-amber-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-100">{totalChains}</p>
-                  <p className="text-sm text-gray-400">Chain Locations</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Restaurants by City */}
         <div className="space-y-8">
-          {Object.entries(restaurantsByCity).map(([cityName, cityRestaurants]) => (
+          {restaurants.length === 0 ? (
+            <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700">
+              <CardContent className="p-12 text-center">
+                <ImageIcon className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+                <h3 className="text-2xl font-bold text-gray-100 mb-2">No Dishes Yet</h3>
+                <p className="text-gray-400 mb-6">
+                  Start building your curated dish library using the Curated Dish Tool
+                </p>
+                <Link href="/admin/curated-dish">
+                  <Button className="bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl">
+                    Create Your First Dish
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          ) : (
+            Object.entries(restaurantsByCity).map(([cityName, cityRestaurants]) => (
             <div key={cityName} className="space-y-4">
               <h2 className="text-2xl font-bold text-gray-100 flex items-center gap-2">
-                <MapPin className="h-6 w-6 text-indigo-400" />
+                <MapPin className="h-6 w-6 text-cyan-400" />
                 {cityName}
                 <span className="text-sm font-normal text-gray-400 ml-2">
                   ({cityRestaurants.length} {cityRestaurants.length === 1 ? 'restaurant' : 'restaurants'})
@@ -148,16 +125,11 @@ export default async function AdminRestaurantsPage() {
                                   <h3 className="text-xl font-bold text-gray-100">
                                     {restaurant.name}
                                   </h3>
-                                  {restaurant.isChain && (
-                                    <span className="px-2 py-1 bg-amber-600/20 border border-amber-600/30 rounded-lg text-xs text-amber-400 font-medium">
-                                      Chain
-                                    </span>
-                                  )}
                                 </div>
                                 
                                 {bestDish && (
                                   <p className="text-sm text-gray-400 mb-2">
-                                    Best Dish: <span className="text-indigo-400 font-medium">{bestDish.name}</span>
+                                    Best Dish: <span className="text-cyan-400 font-medium">{bestDish.name}</span>
                                   </p>
                                 )}
 
@@ -174,7 +146,7 @@ export default async function AdminRestaurantsPage() {
                               </div>
 
                               <Link href={`/admin/restaurants/${restaurant.id}`}>
-                                <Button variant="outline" className="bg-gray-700 hover:bg-gray-600 border-gray-600">
+                                <Button className="bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl">
                                   <Edit className="h-4 w-4 mr-2" />
                                   Edit
                                 </Button>
@@ -201,7 +173,8 @@ export default async function AdminRestaurantsPage() {
                 })}
               </div>
             </div>
-          ))}
+          ))
+          )}
         </div>
       </div>
     </div>

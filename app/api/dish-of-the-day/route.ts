@@ -42,14 +42,15 @@ export async function GET() {
 
     // Calculate average ratings and filter for high-rated dishes
     const dishesWithRatings = topDishes.map(dish => {
-      const averageRating = dish.reviews.length > 0
-        ? dish.reviews.reduce((sum, review) => sum + review.rating, 0) / dish.reviews.length
+      const ratingsOnly = dish.reviews.filter(r => r.rating !== null).map(r => r.rating!)
+      const averageRating = ratingsOnly.length > 0
+        ? ratingsOnly.reduce((sum, rating) => sum + rating, 0) / ratingsOnly.length
         : 0
 
       return {
         ...dish,
         averageRating,
-        reviewCount: dish.reviews.length
+        reviewCount: ratingsOnly.length
       }
     })
 

@@ -1,11 +1,12 @@
 import { prisma } from '@/lib/prisma'
 import { Card, CardContent } from '@/components/ui/card'
-import { Store, Clock, CheckCircle, Users, MapPin, Star } from 'lucide-react'
-import Link from 'next/link'
+import { Clock, CheckCircle, Users, TrendingUp, MapPin } from 'lucide-react'
+
+// Force dynamic rendering - don't try to generate at build time
+export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboard() {
   // Get stats
-  const totalRestaurants = await prisma.restaurant.count()
   const totalDishes = await prisma.dish.count()
   const pendingReviews = await prisma.review.count({
     where: { approved: false }
@@ -17,197 +18,166 @@ export default async function AdminDashboard() {
       description: { not: null }
     }
   })
+  const featuredDishes = await prisma.dish.count({
+    where: { isFeatured: true }
+  })
+  const totalCities = await prisma.city.count()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-6">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen bg-gray-950 p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-gray-100">Admin Dashboard</h1>
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold text-gray-100">Dashboard</h1>
           <p className="text-gray-400 text-lg">
-            Manage BestDish content and reviews
+            Welcome back! Here's what's happening with BestDish today.
           </p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-          <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Total Cities */}
+          <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all">
             <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-indigo-900/50 rounded-xl border border-indigo-600/30">
-                  <Store className="h-6 w-6 text-indigo-400" />
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-400">Cities</p>
+                  <p className="text-3xl font-bold text-gray-100">{totalCities}</p>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-100">{totalRestaurants}</p>
-                  <p className="text-sm text-gray-400">Restaurants</p>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                  <MapPin className="h-6 w-6 text-cyan-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700">
+          {/* Total Dishes */}
+          <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all">
             <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-purple-900/50 rounded-xl border border-purple-600/30">
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-400">Total Dishes</p>
+                  <p className="text-3xl font-bold text-gray-100">{totalDishes}</p>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10 border border-purple-500/20">
                   <Users className="h-6 w-6 text-purple-400" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-100">{totalDishes}</p>
-                  <p className="text-sm text-gray-400">Published</p>
-                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700">
+          {/* Total Reviews */}
+          <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all">
             <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-orange-900/50 rounded-xl border border-orange-600/30">
-                  <Clock className="h-6 w-6 text-orange-400" />
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-400">Total Reviews</p>
+                  <p className="text-3xl font-bold text-gray-100">{totalReviews}</p>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-100">{pendingDishes}</p>
-                  <p className="text-sm text-gray-400">Pending Images</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-yellow-900/50 rounded-xl border border-yellow-600/30">
-                  <Clock className="h-6 w-6 text-yellow-400" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-100">{pendingReviews}</p>
-                  <p className="text-sm text-gray-400">Pending Reviews</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-green-900/50 rounded-xl border border-green-600/30">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10 border border-green-500/20">
                   <CheckCircle className="h-6 w-6 text-green-400" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-100">{totalReviews}</p>
-                  <p className="text-sm text-gray-400">Total Reviews</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pending Reviews */}
+          <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-400">Pending Reviews</p>
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-3xl font-bold text-gray-100">{pendingReviews}</p>
+                    {pendingReviews > 0 && (
+                      <span className="text-xs font-medium text-yellow-400 px-2 py-0.5 bg-yellow-500/10 rounded-full">
+                        Action needed
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-500/10 border border-yellow-500/20">
+                  <Clock className="h-6 w-6 text-yellow-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pending Dishes */}
+          <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-400">Pending Images</p>
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-3xl font-bold text-gray-100">{pendingDishes}</p>
+                    {pendingDishes > 0 && (
+                      <span className="text-xs font-medium text-orange-400 px-2 py-0.5 bg-orange-500/10 rounded-full">
+                        Upload needed
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20">
+                  <Clock className="h-6 w-6 text-orange-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Featured Dishes */}
+          <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-400">Featured Dishes</p>
+                  <p className="text-3xl font-bold text-gray-100">{featuredDishes}</p>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20">
+                  <TrendingUp className="h-6 w-6 text-amber-400" />
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Admin Sections */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Link href="/admin/cities">
-            <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all cursor-pointer group">
-              <CardContent className="p-8">
-                <div className="space-y-4">
-                  <div className="p-4 bg-blue-600/20 rounded-xl border border-blue-600/30 inline-block">
-                    <MapPin className="h-8 w-8 text-blue-400" />
-                  </div>
+        {/* Quick Actions */}
+        <div>
+          <h2 className="text-xl font-bold text-gray-100 mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {pendingReviews > 0 && (
+              <a
+                href="/admin/pending-reviews"
+                className="block p-6 rounded-2xl bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 hover:border-yellow-500/40 transition-all group"
+              >
+                <div className="flex items-center gap-4">
+                  <Clock className="h-8 w-8 text-yellow-400" />
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-100 group-hover:text-blue-400 transition-colors mb-2">
-                      City Management
-                    </h2>
-                    <p className="text-gray-400">
-                      Edit city photos and details for the homepage
+                    <p className="text-lg font-semibold text-gray-100 group-hover:text-yellow-400 transition-colors">
+                      Moderate {pendingReviews} Review{pendingReviews !== 1 ? 's' : ''}
                     </p>
+                    <p className="text-sm text-gray-400">User comments waiting for approval</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/admin/restaurants">
-            <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all cursor-pointer group">
-              <CardContent className="p-8">
-                <div className="space-y-4">
-                  <div className="p-4 bg-indigo-600/20 rounded-xl border border-indigo-600/30 inline-block">
-                    <Store className="h-8 w-8 text-indigo-400" />
-                  </div>
+              </a>
+            )}
+            {pendingDishes > 0 && (
+              <a
+                href="/admin/pending-dishes"
+                className="block p-6 rounded-2xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20 hover:border-orange-500/40 transition-all group"
+              >
+                <div className="flex items-center gap-4">
+                  <Clock className="h-8 w-8 text-orange-400" />
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-100 group-hover:text-indigo-400 transition-colors mb-2">
-                      Restaurant Management
-                    </h2>
-                    <p className="text-gray-400">
-                      Add, edit, and manage restaurants and their best dishes
+                    <p className="text-lg font-semibold text-gray-100 group-hover:text-orange-400 transition-colors">
+                      Upload {pendingDishes} Photo{pendingDishes !== 1 ? 's' : ''}
                     </p>
+                    <p className="text-sm text-gray-400">Dishes need images before publishing</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/admin/pending-reviews">
-            <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all cursor-pointer group">
-              <CardContent className="p-8">
-                <div className="space-y-4">
-                  <div className="p-4 bg-yellow-600/20 rounded-xl border border-yellow-600/30 inline-block">
-                    <Clock className="h-8 w-8 text-yellow-400" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-100 group-hover:text-yellow-400 transition-colors mb-2">
-                      Review Moderation
-                    </h2>
-                    <p className="text-gray-400">
-                      Approve or reject pending user reviews
-                    </p>
-                  </div>
-                  {pendingReviews > 0 && (
-                    <div className="inline-block px-3 py-1 bg-yellow-600/20 border border-yellow-600/30 rounded-full">
-                      <span className="text-yellow-400 font-medium">{pendingReviews} pending</span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/admin/featured-dishes">
-            <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all cursor-pointer group">
-              <CardContent className="p-8">
-                <div className="space-y-4">
-                  <div className="p-4 bg-amber-600/20 rounded-xl border border-amber-600/30 inline-block">
-                    <Star className="h-8 w-8 text-amber-400" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-100 group-hover:text-amber-400 transition-colors mb-2">
-                      Featured Dishes
-                    </h2>
-                    <p className="text-gray-400">
-                      Manage featured dishes on homepage
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/admin/pending-dishes">
-            <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all cursor-pointer group">
-              <CardContent className="p-8">
-                <div className="space-y-4">
-                  <div className="p-4 bg-orange-600/20 rounded-xl border border-orange-600/30 inline-block">
-                    <Clock className="h-8 w-8 text-orange-400" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-100 group-hover:text-orange-400 transition-colors mb-2">
-                      Pending Dishes
-                    </h2>
-                    <p className="text-gray-400">
-                      Review dishes awaiting photos
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </div>

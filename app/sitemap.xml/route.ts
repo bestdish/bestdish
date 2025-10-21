@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// Force dynamic rendering - don't try to generate at build time
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
   
@@ -92,6 +95,7 @@ export async function GET() {
     return new NextResponse('Error generating sitemap', { status: 500 })
   }
 }
+
 
 
 

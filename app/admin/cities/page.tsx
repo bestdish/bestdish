@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Edit, Image as ImageIcon } from 'lucide-react'
+import { Edit, Image as ImageIcon } from 'lucide-react'
+import { getPublicImageUrl } from '@/lib/imageUrl'
 
 interface City {
   id: string
@@ -38,72 +39,83 @@ export default function CitiesAdminPage() {
     }
   }
 
+  const getCityImageUrl = (photoUrl: string | null) => {
+    if (!photoUrl) return null
+    if (photoUrl.startsWith('http')) return photoUrl
+    return getPublicImageUrl('dish-photos', photoUrl)
+  }
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Loading cities...</p>
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-950 p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="mb-8">
-          <Link href="/admin/restaurants" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Restaurants
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Manage Cities</h1>
-          <p className="mt-2 text-gray-600">
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold text-gray-100">City Management</h1>
+          <p className="text-gray-400 text-lg">
             Edit city information and homepage photos
           </p>
         </div>
 
         {/* Cities Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {cities.map((city) => (
-            <Card key={city.id} className="overflow-hidden">
-              <CardContent className="p-0">
-                {/* City Photo */}
-                <div className="relative h-48 bg-gray-100">
-                  {city.photoUrl ? (
-                    <img
-                      src={city.photoUrl}
-                      alt={city.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-                      <ImageIcon className="h-12 w-12 text-gray-400" />
+          {cities.map((city) => {
+            const imageUrl = getCityImageUrl(city.photoUrl)
+            return (
+              <Card key={city.id} className="rounded-2xl overflow-hidden bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all">
+                <CardContent className="p-0">
+                  {/* City Photo */}
+                  <div className="relative h-48 bg-gray-700">
+                    {imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt={city.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-700">
+                        <ImageIcon className="h-12 w-12 text-gray-500" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* City Info */}
+                  <div className="p-6 space-y-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-100 mb-1">
+                        {city.name}
+                      </h3>
+                      <p className="text-sm text-gray-400">
+                        {city._count.restaurants} restaurant{city._count.restaurants !== 1 ? 's' : ''}
+                      </p>
                     </div>
-                  )}
-                </div>
 
-                {/* City Info */}
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    {city.name}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    {city._count.restaurants} restaurants
-                  </p>
-
-                  <Link href={`/admin/cities/${city.id}`}>
-                    <Button className="w-full" variant="outline">
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit City Photo
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                    <Link href={`/admin/cities/${city.id}`}>
+                      <Button className="w-full bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl">
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit City Photo
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       </div>
     </div>
   )
 }
+
+
+
+
 
 

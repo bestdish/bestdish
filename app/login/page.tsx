@@ -22,7 +22,7 @@ export default function LoginPage() {
       if (error) throw error
     } catch (error) {
       console.error('Error logging in:', error)
-      alert('Error logging in: ' + error.message)
+      alert('Error logging in: ' + (error instanceof Error ? error.message : 'Unknown error'))
     } finally {
       setLoading(false)
     }

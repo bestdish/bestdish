@@ -140,14 +140,20 @@ async function processRestaurant(lead: RestaurantLead, city: any, index: number,
     console.log(`  ✓ Identified: ${analysis.bestDish}`)
     if (analysis.price) console.log(`  💰 Price: £${analysis.price.toFixed(2)}`)
     
-    const addressMatch = combinedContent.match(/\d+\s+[A-Z][a-zA-Z\s]+,\s*Manchester[^,]*M\d+\s*\d[A-Z]{2}/i)
-    const address = addressMatch ? addressMatch[0] : null
+    // Use Google Places address as primary, fallback to regex extraction
+    let address = lead.address || null
+    if (!address) {
+      const addressMatch = combinedContent.match(/\d+\s+[A-Z][a-zA-Z\s]+,\s*Manchester[^,]*M\d+\s*\d[A-Z]{2}/i)
+      address = addressMatch ? addressMatch[0] : null
+    }
     
     const websiteMatch = combinedContent.match(/https?:\/\/(?:www\.)?([a-zA-Z0-9-]+\.[a-zA-Z]{2,})/i)
     let website = websiteMatch ? websiteMatch[0] : null
     if (website && (website.includes('google') || website.includes('facebook') || website.includes('instagram'))) {
       website = null
     }
+    
+    if (address) console.log(`  📍 Address: ${address.substring(0, 50)}...`)
     
     const cuisine = analysis.cuisine ? normalizeCuisine(analysis.cuisine) : null
     console.log(`  🍽️  Cuisine: ${cuisine || 'Unknown'}`)

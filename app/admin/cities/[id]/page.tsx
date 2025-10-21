@@ -81,8 +81,8 @@ export default function EditCityPage({ params }: { params: Promise<{ id: string 
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500"></div>
       </div>
     )
   }
@@ -92,29 +92,29 @@ export default function EditCityPage({ params }: { params: Promise<{ id: string 
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-950 p-8">
+      <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
-        <div className="mb-8">
-          <Link href="/admin/cities" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4">
+        <div className="space-y-2">
+          <Link href="/admin/cities" className="inline-flex items-center text-sm text-gray-400 hover:text-cyan-400 mb-4 transition-colors">
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to Cities
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Edit {city.name}</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-4xl font-bold text-gray-100">Edit {city.name}</h1>
+          <p className="text-gray-400 text-lg">
             Update the city photo for the homepage
           </p>
         </div>
 
         {/* Edit Form */}
-        <Card>
+        <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700">
           <CardHeader>
-            <CardTitle>City Photo</CardTitle>
+            <CardTitle className="text-gray-100">City Photo</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Photo Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Homepage City Photo
               </label>
               <p className="text-xs text-gray-500 mb-4">
@@ -124,13 +124,13 @@ export default function EditCityPage({ params }: { params: Promise<{ id: string 
                 onUploadComplete={(url) => setPhotoUrl(url)}
                 currentPhotoUrl={photoUrl}
                 bucketName="dish-photos"
-                entityName={name ? `${name}-city` : 'city'}
+                entityName={city?.name ? `${city.name}-city` : 'city'}
               />
             </div>
 
             {/* Or Manual URL */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Or Enter Photo URL
               </label>
               <Input
@@ -138,6 +138,7 @@ export default function EditCityPage({ params }: { params: Promise<{ id: string 
                 value={photoUrl}
                 onChange={(e) => setPhotoUrl(e.target.value)}
                 placeholder="https://images.unsplash.com/photo-..."
+                className="bg-gray-700 border-gray-600 text-gray-100 rounded-xl"
               />
               <p className="text-xs text-gray-500 mt-1">
                 Recommended size: 800x600px or larger
@@ -147,10 +148,10 @@ export default function EditCityPage({ params }: { params: Promise<{ id: string 
             {/* Preview */}
             {photoUrl && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Preview
                 </label>
-                <div className="relative h-[140px] w-full rounded-2xl overflow-hidden">
+                <div className="relative h-[140px] w-full rounded-2xl overflow-hidden border border-gray-700">
                   <img
                     src={photoUrl}
                     alt={city.name}
@@ -165,11 +166,11 @@ export default function EditCityPage({ params }: { params: Promise<{ id: string 
             )}
 
             {/* Save Button */}
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
               <Link href="/admin/cities">
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline" className="bg-gray-700 border-gray-600 hover:bg-gray-600 rounded-xl">Cancel</Button>
               </Link>
-              <Button onClick={handleSave} disabled={saving}>
+              <Button onClick={handleSave} disabled={saving} className="bg-cyan-600 hover:bg-cyan-700 rounded-xl">
                 <Save className="h-4 w-4 mr-2" />
                 {saving ? 'Saving...' : 'Save Changes'}
               </Button>
