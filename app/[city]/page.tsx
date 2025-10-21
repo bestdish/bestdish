@@ -239,7 +239,7 @@ export default async function CityPage({ params }: CityPageProps) {
                 return (
                   <Link
                     key={restaurant.id}
-                    href={bestDish ? `/${city.slug}/${restaurant.slug}/${bestDish.slug}` : `/${city.slug}/${restaurant.slug}`}
+                    href={`/${city.slug}/${bestDish.slug}`}
                     className="group"
                   >
                     <Card className="rounded-2xl shadow-md bg-card border-border hover:shadow-xl transition-all duration-300 overflow-hidden group">

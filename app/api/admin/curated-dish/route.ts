@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         dish: {
           id: result.dishId,
           slug: result.dishSlug,
-          url: `/${result.citySlug}/${result.restaurantName?.toLowerCase().replace(/\s+/g, '-')}/${result.dishSlug}`
+          url: `/${result.citySlug}/${result.dishSlug}`
         },
         progress: result.progress
       })

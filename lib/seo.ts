@@ -155,7 +155,7 @@ export function generateDishSchema(dish: {
   reviewCount: number
 }) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
-  const dishUrl = `${baseUrl}/${dish.restaurant.city.slug}/${dish.restaurant.slug}/${dish.slug}`
+  const dishUrl = `${baseUrl}/${dish.restaurant.city.slug}/${dish.slug}`
   
   return {
     "@context": "https://schema.org",

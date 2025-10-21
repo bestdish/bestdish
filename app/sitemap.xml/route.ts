@@ -68,7 +68,7 @@ export async function GET() {
   <!-- Dishes -->
   ${dishes.map(dish => `
   <url>
-    <loc>${baseUrl}/${dish.restaurant.city.slug}/${dish.restaurant.slug}/${dish.slug}</loc>
+    <loc>${baseUrl}/${dish.restaurant.city.slug}/${dish.slug}</loc>
     <lastmod>${dish.updatedAt.toISOString()}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

@@ -229,7 +229,7 @@ export default async function HomePage() {
                   return (
                     <Link
                       key={dish.id}
-                      href={`/${dish.restaurant.city.slug}/${dish.restaurant.slug}/${dish.slug}`}
+                      href={`/${dish.restaurant.city.slug}/${dish.slug}`}
                       className="group flex-shrink-0"
                     >
                       <div className="w-[280px] bg-card rounded-2xl shadow-md hover:shadow-xl border border-border transition-all duration-300 overflow-hidden">
@@ -369,7 +369,7 @@ export default async function HomePage() {
                   return (
                     <Link
                       key={dish.id}
-                      href={`/${dish.restaurant.city.slug}/${dish.restaurant.slug}/${dish.slug}`}
+                      href={`/${dish.restaurant.city.slug}/${dish.slug}`}
                       className="group flex-shrink-0"
                     >
                       <div className="w-[280px] bg-card rounded-2xl shadow-md hover:shadow-xl border border-border transition-all duration-300 overflow-hidden">

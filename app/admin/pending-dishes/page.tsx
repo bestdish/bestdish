@@ -270,7 +270,7 @@ export default function PendingDishesPage() {
                       )}
                       
                       <Link
-                        href={`/${dish.restaurant.city.slug}/${dish.restaurant.name.toLowerCase().replace(/\s+/g, '-')}/${dish.slug}`}
+                        href={`/${dish.restaurant.city.slug}/${dish.slug}`}
                         target="_blank"
                       >
                         <Button variant="outline" size="sm" className="bg-gray-700 border-gray-600 hover:bg-gray-600 rounded-xl">

@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
         citySlug: dish.restaurant.city.slug,
         rating: avgRating ? Number(avgRating.toFixed(1)) : null,
         ratingCount: ratings.length,
-        url: `/${dish.restaurant.city.slug}/${dish.restaurant.slug}/${dish.slug}`
+        url: `/${dish.restaurant.city.slug}/${dish.slug}`
       }
     })
 
