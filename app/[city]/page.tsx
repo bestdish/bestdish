@@ -227,7 +227,9 @@ export default async function CityPage({ params }: CityPageProps) {
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {city.restaurants.map((restaurant) => {
+              {city.restaurants
+                .filter(restaurant => restaurant.dishes.length > 0) // Only show restaurants with published dishes
+                .map((restaurant) => {
                 const bestDish = restaurant.dishes[0]
                 // Get dish photo: if it's a filename, convert to Supabase URL; otherwise use restaurant photo
                 const dishPhoto = bestDish?.photoUrl
