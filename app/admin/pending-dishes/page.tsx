@@ -33,6 +33,7 @@ export default function PendingDishesPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
   const [uploadingDish, setUploadingDish] = useState<string | null>(null)
 
   const fetchDishes = async () => {
@@ -42,6 +43,7 @@ export default function PendingDishesPage() {
       const data = await response.json()
       setDishes(data.dishes)
       setTotalPages(data.totalPages)
+      setTotalCount(data.total)
     } catch (error) {
       console.error('Failed to fetch pending dishes:', error)
       toast.error('Failed to load pending dishes')
@@ -148,7 +150,10 @@ export default function PendingDishesPage() {
             <div className="flex items-center justify-between">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-gray-400">Awaiting Images</p>
-                <p className="text-3xl font-bold text-gray-100">{dishes.length}</p>
+                <p className="text-3xl font-bold text-gray-100">{totalCount}</p>
+                {totalPages > 1 && (
+                  <p className="text-xs text-gray-500">Page {page} of {totalPages}</p>
+                )}
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20">
                 <Clock className="h-6 w-6 text-amber-400" />
