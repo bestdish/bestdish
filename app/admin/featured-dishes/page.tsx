@@ -70,33 +70,30 @@ export default function FeaturedDishesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-950 p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="mb-8">
-          <Link href="/admin" className="text-sm text-muted-foreground hover:text-primary mb-4 inline-block">
-            ← Back to Admin
-          </Link>
-          <h1 className="text-4xl font-bold text-foreground mb-2">Featured Dishes</h1>
-          <p className="text-muted-foreground">
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold text-gray-100">Featured Dishes</h1>
+          <p className="text-gray-400 text-lg">
             Manage which dishes appear in the "Explore Featured Dishes" section. Currently featuring {featuredCount} dishes.
           </p>
         </div>
 
         {/* Dishes List */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {dishes.map((dish) => (
-            <Card key={dish.id} className={dish.isFeatured ? 'border-primary border-2' : ''}>
+            <Card key={dish.id} className={`rounded-2xl shadow-lg bg-gray-800/50 hover:bg-gray-800/70 transition-all ${dish.isFeatured ? 'border-cyan-500 border-2' : 'border-gray-700'}`}>
               <CardHeader>
-                <CardTitle className="text-lg">{dish.name}</CardTitle>
-                <p className="text-sm text-muted-foreground">
+                <CardTitle className="text-lg text-gray-100">{dish.name}</CardTitle>
+                <p className="text-sm text-gray-400">
                   {dish.restaurant.name} • {dish.restaurant.city.name}
                 </p>
               </CardHeader>
@@ -104,15 +101,19 @@ export default function FeaturedDishesPage() {
                 <Button
                   onClick={() => toggleFeatured(dish.id, dish.isFeatured)}
                   disabled={updating === dish.id}
-                  variant={dish.isFeatured ? 'default' : 'outline'}
-                  className="w-full"
+                  className={`w-full rounded-xl ${dish.isFeatured ? 'bg-cyan-600 hover:bg-cyan-700' : 'bg-gray-700 hover:bg-gray-600'}`}
                 >
                   {updating === dish.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Updating...
+                    </>
                   ) : (
-                    <Star className={`h-4 w-4 mr-2 ${dish.isFeatured ? 'fill-current' : ''}`} />
+                    <>
+                      <Star className={`h-4 w-4 mr-2 ${dish.isFeatured ? 'fill-current' : ''}`} />
+                      {dish.isFeatured ? 'Remove from Featured' : 'Add to Featured'}
+                    </>
                   )}
-                  {dish.isFeatured ? 'Remove from Featured' : 'Add to Featured'}
                 </Button>
               </CardContent>
             </Card>
@@ -122,4 +123,5 @@ export default function FeaturedDishesPage() {
     </div>
   )
 }
+
 

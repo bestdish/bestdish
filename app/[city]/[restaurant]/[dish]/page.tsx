@@ -77,7 +77,7 @@ export async function generateMetadata({ params }: DishPageProps): Promise<Metad
     url: dishUrl,
     image: dish.photoUrl 
       ? (dish.photoUrl.startsWith('http') ? dish.photoUrl : getPublicImageUrl('dish-photos', dish.photoUrl))
-      : dish.restaurant.photoUrl,
+      : (dish.restaurant.photoUrl || undefined),
     type: 'article'
   })
 
@@ -150,7 +150,7 @@ export default async function DishPage({ params }: DishPageProps) {
     name: dish.name,
     slug: dish.slug,
     description: dish.description,
-    price: dish.price,
+    price: null, // Price hidden from users
     photoUrl: dish.photoUrl,
     restaurant: {
       name: dish.restaurant.name,
@@ -161,16 +161,18 @@ export default async function DishPage({ params }: DishPageProps) {
         slug: dish.restaurant.city.slug
       }
     },
-    reviews: dish.reviews.map(review => ({
-      id: review.id,
-      rating: review.rating,
-      comment: review.comment,
-      createdAt: review.createdAt.toISOString(),
-      user: {
-        name: review.user?.name || review.authorName,
-        email: review.user?.email || 'anonymous@bestdish.com'
-      }
-    })),
+    reviews: dish.reviews
+      .filter(review => review.rating !== null)
+      .map(review => ({
+        id: review.id,
+        rating: review.rating!,
+        comment: review.comment,
+        createdAt: review.createdAt.toISOString(),
+        user: {
+          name: review.user?.name || review.authorName,
+          email: review.user?.email || 'anonymous@bestdish.com'
+        }
+      })),
     averageRating,
     reviewCount: dish.reviews.length
   })
@@ -356,12 +358,6 @@ export default async function DishPage({ params }: DishPageProps) {
                   <Menu className="h-4 w-4" />
                   <span>View Menu</span>
                 </a>
-              )}
-              
-              {dish.price && (
-                <div className="inline-flex items-center px-5 py-2.5 bg-muted/30 rounded-lg text-foreground font-bold text-sm">
-                  £{dish.price.toFixed(2)}
-                </div>
               )}
             </div>
           </header>

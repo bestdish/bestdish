@@ -1,10 +1,12 @@
 import { prisma } from '@/lib/prisma'
 import { Card, CardContent } from '@/components/ui/card'
-import { MapPin, Star, Users, Clock } from 'lucide-react'
+import { MapPin, Star, Users, Clock, Utensils } from 'lucide-react'
 import Link from 'next/link'
 import { Metadata } from 'next'
 import { getPublicImageUrl } from '@/lib/imageUrl'
 import SearchBar from '@/components/SearchBar'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'BestDish - Discover the Best Dishes in Every City',
@@ -54,7 +56,11 @@ export default async function HomePage() {
 
   // Fetch featured dishes
   const featuredDishes = await prisma.dish.findMany({
-    where: { isFeatured: true, isBest: true, restaurant: { isActive: true } },
+    where: { 
+      isFeatured: true, 
+      isBest: true, 
+      restaurant: { isActive: true } 
+    },
     include: { restaurant: { include: { city: true } } },
     orderBy: { createdAt: 'desc' },
     take: 12
@@ -166,12 +172,18 @@ export default async function HomePage() {
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero Section - Editorial Magazine Style */}
           <div className="text-center py-20">
+            {/* Logo */}
+            <div className="mb-3">
+              <div className="text-2xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+                <span className="text-primary">Best</span><span className="text-foreground">Dish</span><sup className="text-xs">™</sup>
+              </div>
+            </div>
+            
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 tracking-tight leading-[1.1]">
-              No more food envy.<br />
-              Only order the <span className="text-primary">BestDish</span><sup className="text-2xl md:text-3xl lg:text-4xl">™</sup>
+              The Only Ranking That Matters.
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Find the best dish to order at your local restaurant
+              We don't rate restaurants. We rate dishes. Find the one worth ordering.
             </p>
           </div>
 
@@ -264,7 +276,9 @@ export default async function HomePage() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
               {cities.filter(city => city.slug !== 'nationwide' && city._count.restaurants > 0).map((city) => {
                 // Use uploaded city photo or fallback to placeholder
-                const cityImage = city.photoUrl || cityImages[city.slug] || 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80'
+                const cityImage = city.photoUrl 
+                  ? (city.photoUrl.startsWith('http') ? city.photoUrl : getPublicImageUrl('dish-photos', city.photoUrl))
+                  : (cityImages[city.slug] || 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80')
                 
                 return (
                   <Link
@@ -290,7 +304,7 @@ export default async function HomePage() {
 
           {/* What's New on BestDish - Horizontal Scroll */}
           <div className="mb-20 -mx-4 sm:mx-0">
-            <h2 className="text-4xl font-bold text-foreground mb-8 px-4 sm:px-0">What's <span className="text-primary">New</span> on BestDish</h2>
+            <h2 className="text-4xl font-bold text-foreground mb-8 px-4 sm:px-0">What&apos;s <span className="text-primary">New</span> on BestDish</h2>
             <div className="flex gap-6 overflow-x-auto px-4 sm:px-0 pb-4 scrollbar-hide">
               {latestDishes.map((dish) => {
                 // Get dish photo: if it's a filename, convert to Supabase URL; otherwise use restaurant photo
@@ -395,6 +409,34 @@ export default async function HomePage() {
               </div>
             </div>
           )}
+
+          {/* Restaurant Contact Card */}
+          <div className="py-16 border-t border-border">
+            <div className="max-w-2xl mx-auto">
+              <Card className="rounded-2xl shadow-lg bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+                <CardContent className="p-8 text-center">
+                  <div className="mb-4">
+                    <Users className="h-12 w-12 text-primary mx-auto mb-4" />
+                    <h3 className="text-2xl font-bold text-foreground mb-2">
+                      Are You a Restaurant Owner?
+                    </h3>
+                  </div>
+                  <p className="text-muted-foreground mb-6 leading-relaxed">
+                    Want your signature dish featured on BestDish? We're always looking to showcase exceptional dining experiences.
+                  </p>
+                  <a
+                    href="mailto:hello@bestdish.co.uk?subject=Restaurant Listing Request"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold transition-colors shadow-md hover:shadow-lg"
+                  >
+                    Get in Touch
+                  </a>
+                  <p className="text-sm text-muted-foreground mt-4">
+                    Email us at <span className="font-medium text-foreground">hello@bestdish.co.uk</span>
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
 
           {/* Search Section */}
           <div className="py-24 text-center border-t border-border">

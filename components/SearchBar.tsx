@@ -173,7 +173,7 @@ export default function SearchBar({ variant = 'header', onResultClick }: SearchB
       {/* No Results */}
       {isOpen && !isLoading && query.trim().length > 0 && results.length === 0 && (
         <div className="absolute z-50 w-full mt-2 bg-white border border-border rounded-2xl shadow-xl p-6 text-center">
-          <p className="text-muted-foreground">No dishes or restaurants found for "{query}"</p>
+          <p className="text-muted-foreground">No dishes or restaurants found for &ldquo;{query}&rdquo;</p>
         </div>
       )}
     </div>

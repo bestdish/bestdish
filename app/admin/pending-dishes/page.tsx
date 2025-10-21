@@ -119,54 +119,43 @@ export default function PendingDishesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-950 p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-100 mb-2">Pending Dishes</h1>
-              <p className="text-gray-400">Dishes awaiting image approval before publishing</p>
-            </div>
-            <Link href="/admin">
-              <Button variant="outline" className="bg-gray-800 border-gray-700 hover:bg-gray-700">
-                ← Back to Admin
-              </Button>
-            </Link>
-          </div>
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold text-gray-100">Pending Dishes</h1>
+          <p className="text-gray-400 text-lg">Dishes awaiting image approval before publishing</p>
+        </div>
 
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-            <Input
-              type="text"
-              placeholder="Search by dish name, restaurant, or city..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value)
-                setPage(1)
-              }}
-              className="pl-10 bg-gray-800 border-gray-700 text-gray-100"
-            />
-          </div>
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+          <Input
+            type="text"
+            placeholder="Search by dish name, restaurant, or city..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value)
+              setPage(1)
+            }}
+            className="pl-10 bg-gray-800 border-gray-700 text-gray-100 rounded-xl"
+          />
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-gray-800 border-gray-700">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-amber-600/20 rounded-lg">
-                  <Clock className="h-6 w-6 text-amber-400" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-gray-100">{dishes.length}</div>
-                  <div className="text-sm text-gray-400">Awaiting Images</div>
-                </div>
+        <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-400">Awaiting Images</p>
+                <p className="text-3xl font-bold text-gray-100">{dishes.length}</p>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20">
+                <Clock className="h-6 w-6 text-amber-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Dishes List */}
         {loading ? (
@@ -174,7 +163,7 @@ export default function PendingDishesPage() {
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
           </div>
         ) : dishes.length === 0 ? (
-          <Card className="bg-gray-800 border-gray-700">
+          <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700">
             <CardContent className="p-12 text-center">
               <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-gray-100 mb-2">All Clear!</h3>
@@ -184,7 +173,7 @@ export default function PendingDishesPage() {
         ) : (
           <div className="space-y-6">
             {dishes.map((dish) => (
-              <Card key={dish.id} className="bg-gray-800 border-gray-700">
+              <Card key={dish.id} className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -200,7 +189,7 @@ export default function PendingDishesPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleDelete(dish.id)}
-                        className="bg-red-900/20 border-red-800 hover:bg-red-900/40"
+                        className="bg-red-900/20 border-red-800 hover:bg-red-900/40 rounded-xl"
                       >
                         <XCircle className="h-4 w-4 mr-2" />
                         Delete
@@ -238,7 +227,7 @@ export default function PendingDishesPage() {
                       <div className="flex-1">
                         <label
                           htmlFor={`upload-${dish.id}`}
-                          className="flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md cursor-pointer transition-colors"
+                          className="flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl cursor-pointer transition-colors"
                         >
                           {uploadingDish === dish.id ? (
                             <>
@@ -268,7 +257,7 @@ export default function PendingDishesPage() {
                       {dish.photoUrl && (
                         <Button
                           onClick={() => handlePublish(dish.id)}
-                          className="bg-green-600 hover:bg-green-700"
+                          className="bg-green-600 hover:bg-green-700 rounded-xl"
                         >
                           <CheckCircle className="h-4 w-4 mr-2" />
                           Publish to Website
@@ -279,7 +268,7 @@ export default function PendingDishesPage() {
                         href={`/${dish.restaurant.city.slug}/${dish.restaurant.name.toLowerCase().replace(/\s+/g, '-')}/${dish.slug}`}
                         target="_blank"
                       >
-                        <Button variant="outline" size="sm" className="bg-gray-700 border-gray-600 hover:bg-gray-600">
+                        <Button variant="outline" size="sm" className="bg-gray-700 border-gray-600 hover:bg-gray-600 rounded-xl">
                           Preview
                         </Button>
                       </Link>
@@ -336,4 +325,5 @@ export default function PendingDishesPage() {
     </div>
   )
 }
+
 

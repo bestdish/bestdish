@@ -103,39 +103,39 @@ export default function PendingReviewsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-8">
-        <div className="max-w-6xl mx-auto">
-          <p className="text-gray-400">Loading...</p>
-        </div>
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-8">
+    <div className="min-h-screen bg-gray-950 p-8">
       <div className="max-w-6xl mx-auto space-y-8">
-        <div>
-          <h1 className="text-4xl font-bold text-gray-100 mb-2">Pending Comments</h1>
-          <p className="text-gray-400">{reviews.length} comment{reviews.length !== 1 ? 's' : ''} awaiting moderation</p>
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold text-gray-100">Review Moderation</h1>
+          <p className="text-gray-400 text-lg">{reviews.length} comment{reviews.length !== 1 ? 's' : ''} awaiting moderation</p>
         </div>
 
         {reviews.length === 0 ? (
           <Card className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700">
             <CardContent className="p-12 text-center">
-              <p className="text-gray-400">No pending comments</p>
+              <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-gray-100 mb-2">All Clear!</h3>
+              <p className="text-gray-400">No pending comments to review</p>
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-4">
             {reviews.map((review) => (
-              <Card key={review.id} className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700">
+              <Card key={review.id} className="rounded-2xl shadow-lg bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all">
                 <CardContent className="p-6">
                   <div className="space-y-4">
                     {/* Header */}
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 bg-yellow-600 rounded-full flex items-center justify-center flex-shrink-0">
-                          <User className="h-5 w-5 text-gray-900" />
+                        <div className="w-10 h-10 bg-cyan-500 rounded-full flex items-center justify-center flex-shrink-0">
+                          <User className="h-5 w-5 text-white" />
                         </div>
                         <div>
                           <p className="font-semibold text-gray-100">{review.authorName}</p>
@@ -151,7 +151,7 @@ export default function PendingReviewsPage() {
                     
                     {/* Dish Info */}
                     <div className="pl-13">
-                      <p className="text-sm text-yellow-400 font-medium">{review.dish.name}</p>
+                      <p className="text-sm text-cyan-400 font-medium">{review.dish.name}</p>
                       <p className="text-xs text-gray-500">{review.dish.restaurant.name}, {review.dish.restaurant.city.name}</p>
                     </div>
                     
@@ -164,14 +164,14 @@ export default function PendingReviewsPage() {
                     <div className="flex items-center gap-3 pl-13 pt-3 border-t border-gray-700">
                       <button 
                         onClick={() => handleApprove(review.id)}
-                        className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors text-sm"
+                        className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-colors text-sm"
                       >
                         <CheckCircle className="h-4 w-4" />
                         Approve
                       </button>
                       <button 
                         onClick={() => handleReject(review.id)}
-                        className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors text-sm"
+                        className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-colors text-sm"
                       >
                         <XCircle className="h-4 w-4" />
                         Reject

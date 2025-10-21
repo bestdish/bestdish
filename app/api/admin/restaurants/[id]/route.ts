@@ -62,8 +62,7 @@ export async function PUT(
         photoUrl: restaurantData.photoUrl,
         rating: restaurantData.rating,
         googlePlaceId: restaurantData.googlePlaceId,
-        isActive: restaurantData.isActive,
-        isChain: restaurantData.isChain
+        isActive: restaurantData.isActive
       }
     })
 

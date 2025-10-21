@@ -75,7 +75,9 @@ export default async function CityPage({ params }: CityPageProps) {
         },
         include: {
           dishes: {
-            where: { isBest: true },
+            where: { 
+              isBest: true
+            },
             take: 1
           },
           _count: {
@@ -160,16 +162,55 @@ export default async function CityPage({ params }: CityPageProps) {
       />
 
       <div className="min-h-screen bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header */}
-          <div className="text-center mb-16 py-12">
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-              Best <span className="text-primary">Restaurants</span> in {city.name}
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              {city.description || `Discover the top-rated restaurants in ${city.name}. Find the best dishes, read reviews, and explore local dining.`}
-            </p>
+        {/* Hero Image Section */}
+        {city.photoUrl && (
+          <div className="relative h-[200px] md:h-[250px] w-full overflow-hidden">
+            <img
+              src={city.photoUrl.startsWith('http') ? city.photoUrl : getPublicImageUrl('dish-photos', city.photoUrl)}
+              alt={city.name}
+              className="w-full h-full object-cover"
+            />
+            {/* Gradient overlay for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-background" />
+            
+            {/* City name overlay */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center px-4">
+                <h1 className="text-3xl md:text-5xl font-bold text-white mb-2 drop-shadow-2xl">
+                  {city.name}
+                </h1>
+                <p className="text-base md:text-lg text-white/90 max-w-2xl mx-auto drop-shadow-lg">
+                  {city.description || `Discover the best dining experiences in ${city.name}`}
+                </p>
+              </div>
+            </div>
           </div>
+        )}
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header (for cities without photos) */}
+          {!city.photoUrl && (
+            <div className="text-center mb-16 py-12">
+              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+                Best <span className="text-primary">Restaurants</span> in {city.name}
+              </h1>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                {city.description || `Discover the top-rated restaurants in ${city.name}. Find the best dishes, read reviews, and explore local dining.`}
+              </p>
+            </div>
+          )}
+
+          {/* Section header for cities with photos */}
+          {city.photoUrl && (
+            <div className="text-center mb-12 py-8">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+                Top <span className="text-primary">Restaurants</span>
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Explore the finest dining experiences {city.name} has to offer
+              </p>
+            </div>
+          )}
 
           {/* Restaurants Grid */}
           {city.restaurants.length === 0 ? (
