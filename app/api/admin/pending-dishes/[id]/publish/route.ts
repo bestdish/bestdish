@@ -27,6 +27,23 @@ export async function POST(
       data: { isBest: true }
     })
 
+    // Trigger Make.com webhook for Instagram posting
+    if (process.env.MAKE_WEBHOOK_URL) {
+      try {
+        const response = await fetch(process.env.MAKE_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dishId: id })
+        })
+        
+        if (!response.ok) {
+          console.warn('Instagram webhook trigger failed, but dish was published')
+        }
+      } catch (error) {
+        console.warn('Instagram webhook error, but dish was published:', error)
+      }
+    }
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Publish error:', error)
