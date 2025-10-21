@@ -216,7 +216,9 @@ export async function curateDish(input: CurateDishInput): Promise<CurateDishResu
     
     // Step 8: Create or update dish
     progress.push('💾 Creating dish in database...')
-    const dishSlug = slugify(input.dishName)
+    const restaurantSlug = slugify(restaurantData.name)
+    const dishOnlySlug = slugify(input.dishName)
+    const dishSlug = `${restaurantSlug}-${dishOnlySlug}`
     
     // Check if dish already exists for this restaurant
     const existingDish = await prisma.dish.findFirst({
@@ -258,7 +260,7 @@ export async function curateDish(input: CurateDishInput): Promise<CurateDishResu
     
     progress.push(`✅ Dish created successfully!`)
     progress.push(`   Name: ${dish.name}`)
-    progress.push(`   URL: /${input.citySlug}/${generateRestaurantSlug(restaurantData.name)}/${dish.slug}`)
+    progress.push(`   URL: /${input.citySlug}/${dish.slug}`)
     
     // Step 9: Trigger Make.com webhook for Instagram posting
     if (process.env.MAKE_WEBHOOK_URL) {

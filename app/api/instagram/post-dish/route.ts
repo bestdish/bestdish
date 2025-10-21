@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
         dish.restaurant.city.name,
         dish.restaurant.cuisine
       ),
-      websiteUrl: `${process.env.NEXT_PUBLIC_URL || 'https://bestdish.co.uk'}/${dish.restaurant.city.slug}/${dish.restaurant.slug}/${dish.slug}`,
+      websiteUrl: `${process.env.NEXT_PUBLIC_URL || 'https://bestdish.co.uk'}/${dish.restaurant.city.slug}/${dish.slug}`,
       cityName: dish.restaurant.city.name,
       cuisine: dish.restaurant.cuisine
     }

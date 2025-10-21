@@ -14,17 +14,16 @@ import CommunityScore from '@/components/CommunityScore'
 export const dynamic = 'force-dynamic'
 
 interface DishPageProps {
-  params: Promise<{ city: string; restaurant: string; dish: string }>
+  params: Promise<{ city: string; dish: string }>
 }
 
 export async function generateMetadata({ params }: DishPageProps): Promise<Metadata> {
-  const { city: citySlug, restaurant: restaurantSlug, dish: dishSlug } = await params
+  const { city: citySlug, dish: dishSlug } = await params
   
   const dish = await prisma.dish.findFirst({
     where: { 
       slug: dishSlug,
       restaurant: {
-        slug: restaurantSlug,
         isActive: true,
         city: { slug: citySlug }
       }
@@ -52,7 +51,7 @@ export async function generateMetadata({ params }: DishPageProps): Promise<Metad
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-  const dishUrl = `${baseUrl}/${citySlug}/${restaurantSlug}/${dishSlug}`
+  const dishUrl = `${baseUrl}/${citySlug}/${dishSlug}`
   
   // Calculate average rating from reviews that have ratings
   const reviewsWithRatings = dish.reviews.filter(r => r.rating !== null)
@@ -90,13 +89,12 @@ export async function generateMetadata({ params }: DishPageProps): Promise<Metad
 }
 
 export default async function DishPage({ params }: DishPageProps) {
-  const { city: citySlug, restaurant: restaurantSlug, dish: dishSlug } = await params
+  const { city: citySlug, dish: dishSlug } = await params
   
   const dish = await prisma.dish.findFirst({
     where: { 
       slug: dishSlug,
       restaurant: {
-        slug: restaurantSlug,
         isActive: true,
         city: { slug: citySlug }
       }
@@ -197,7 +195,7 @@ export default async function DishPage({ params }: DishPageProps) {
         "@type": "ListItem",
         "position": 3,
         "name": dish.restaurant.name,
-        "item": `${process.env.NEXT_PUBLIC_SITE_URL}/${dish.restaurant.city.slug}/${dish.restaurant.slug}/${dish.slug}`
+        "item": `${process.env.NEXT_PUBLIC_SITE_URL}/${dish.restaurant.city.slug}/${dish.slug}`
       }
     ]
   }

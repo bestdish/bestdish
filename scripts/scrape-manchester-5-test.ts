@@ -256,7 +256,8 @@ async function processRestaurant(lead: RestaurantLead, city: any, index: number,
       })
     }
     
-    const dishSlug = slugify(analysis.bestDish)
+    const dishOnlySlug = slugify(analysis.bestDish)
+    const dishSlug = `${restaurantSlug}-${dishOnlySlug}`
     const existingDish = await prisma.dish.findFirst({
       where: {
         slug: dishSlug,
