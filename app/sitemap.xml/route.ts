@@ -5,7 +5,13 @@ import { prisma } from '@/lib/prisma'
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  // Always use production URL for sitemap - ignore localhost env vars
+  let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bestdish.co.uk'
+  
+  // If env var is set to localhost (dev), use production URL instead
+  if (baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1')) {
+    baseUrl = 'https://bestdish.co.uk'
+  }
   
   try {
     // Get all cities

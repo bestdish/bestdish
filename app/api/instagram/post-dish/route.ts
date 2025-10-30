@@ -39,19 +39,72 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Dish is not published' }, { status: 400 })
     }
     
+    // Validate required fields for Instagram posting
+    if (!dish.photoUrl) {
+      return NextResponse.json({ 
+        error: 'Dish is missing photo - cannot post to Instagram' 
+      }, { status: 400 })
+    }
+    
+    if (!dish.description || dish.description.trim() === '') {
+      return NextResponse.json({ 
+        error: 'Dish is missing description - cannot post to Instagram' 
+      }, { status: 400 })
+    }
+    
+    // Get and validate photo URL
+    const photoUrl = getFullImageUrl(dish.photoUrl)
+    if (!photoUrl) {
+      return NextResponse.json({ 
+        error: 'Failed to generate valid photo URL' 
+      }, { status: 500 })
+    }
+    
+    // Verify image is accessible before sending to Instagram
+    // This "warms up" the Supabase CDN and prevents race conditions
+    try {
+      const imageCheck = await fetch(photoUrl, { method: 'HEAD', signal: AbortSignal.timeout(5000) })
+      if (!imageCheck.ok) {
+        console.error('Image not accessible:', photoUrl, imageCheck.status)
+        return NextResponse.json({ 
+          error: 'Dish photo is not accessible' 
+        }, { status: 500 })
+      }
+    } catch (error) {
+      console.error('Image warmup failed:', error)
+      return NextResponse.json({ 
+        error: 'Failed to verify dish photo accessibility' 
+      }, { status: 500 })
+    }
+    
+    // Generate Instagram handle with robust fallback
+    let restaurantInstagram = dish.restaurant.instagramHandle
+    if (!restaurantInstagram) {
+      // Try to generate a handle from the restaurant name
+      const generatedHandle = extractInstagramHandle(dish.restaurant.name)
+      if (generatedHandle) {
+        restaurantInstagram = `@${generatedHandle}`
+      } else {
+        // Ultimate fallback: use restaurant name as-is with @ prefix
+        restaurantInstagram = `@${dish.restaurant.name}`
+      }
+    } else if (!restaurantInstagram.startsWith('@')) {
+      // Ensure existing handle has @ prefix
+      restaurantInstagram = `@${restaurantInstagram}`
+    }
+    
     // Format for Instagram
     const instagramData = {
       dishName: dish.name,
       restaurantName: dish.restaurant.name,
-      restaurantInstagram: dish.restaurant.instagramHandle || extractInstagramHandle(dish.restaurant.name),
-      description: dish.description || '',
+      restaurantInstagram,
+      description: dish.description,
       editorialQuote: dish.editorialQuote || '',
       price: dish.price,
-      dishPhotoUrl: getFullImageUrl(dish.photoUrl),
-      restaurantPhotoUrl: getFullImageUrl(dish.restaurant.photoUrl),
+      photoUrl,
       location: {
         name: `${dish.restaurant.name}, ${dish.restaurant.city.name}`,
-        address: dish.restaurant.address
+        address: dish.restaurant.address || ''
       },
       hashtags: generateHashtags(
         dish.name,
@@ -62,6 +115,23 @@ export async function POST(request: NextRequest) {
       websiteUrl: `${process.env.NEXT_PUBLIC_URL || 'https://bestdish.co.uk'}/${dish.restaurant.city.slug}/${dish.slug}`,
       cityName: dish.restaurant.city.name,
       cuisine: dish.restaurant.cuisine
+    }
+    
+    // Final validation - ensure critical fields are not empty
+    if (!instagramData.dishName || !instagramData.restaurantInstagram || 
+        !instagramData.description || !instagramData.photoUrl || 
+        !instagramData.location.name || instagramData.hashtags.length === 0) {
+      console.error('Validation failed:', {
+        dishName: !!instagramData.dishName,
+        restaurantInstagram: !!instagramData.restaurantInstagram,
+        description: !!instagramData.description,
+        photoUrl: !!instagramData.photoUrl,
+        locationName: !!instagramData.location.name,
+        hashtagsCount: instagramData.hashtags.length
+      })
+      return NextResponse.json({ 
+        error: 'Data validation failed - missing required fields for Instagram' 
+      }, { status: 500 })
     }
     
     return NextResponse.json(instagramData)
@@ -82,7 +152,9 @@ function getFullImageUrl(url: string | null): string | null {
   return `${supabaseUrl}/storage/v1/object/public/dish-photos/${url}`
 }
 
-function extractInstagramHandle(restaurantName: string): string {
+function extractInstagramHandle(restaurantName: string): string | null {
+  if (!restaurantName) return null
+  
   // Common patterns for converting restaurant names to Instagram handles
   const handle = restaurantName
     .toLowerCase()
@@ -91,7 +163,12 @@ function extractInstagramHandle(restaurantName: string): string {
     .replace(/_+/g, '_') // Remove duplicate underscores
     .replace(/^_|_$/g, '') // Remove leading/trailing underscores
   
-  return `@${handle}`
+  // If handle is empty after processing, return null to trigger fallback
+  if (!handle || handle.length === 0) {
+    return null
+  }
+  
+  return handle // Don't add @ here, it's added in the main logic
 }
 
 function generateHashtags(
