@@ -88,15 +88,14 @@ function buildCaption(dish: {
     dish.restaurant.city.name,
     dish.restaurant.cuisine
   )
-  const descriptionText = (dish.description ?? '').slice(0, 1500)
+  const descriptionText = (dish.description ?? '').slice(0, 1800)
   const lines = [
-    `${dish.name} at ${dish.restaurant.name} 🍽`,
+    `${dish.name} @ ${restaurantInstagram}`,
     '',
     descriptionText,
     '',
-    `${restaurantInstagram} · ${location}`,
-    '',
-    baseUrl,
+    `📍 ${location}`,
+    `🔗 ${baseUrl.replace(/^https?:\/\//, '')}`,
     '',
     hashtags.join(' '),
   ]
@@ -108,9 +107,10 @@ function buildCaption(dish: {
  * If not configured, returns { success: false, error: '...' } without throwing.
  */
 export async function publishDishToInstagram(dishId: string): Promise<PublishToInstagramResult> {
-  const token = process.env.INSTAGRAM_GRAPH_ACCESS_TOKEN
-  const igUserId = process.env.INSTAGRAM_IG_USER_ID
-  if (!token?.trim() || !igUserId?.trim()) {
+  const rawToken = process.env.INSTAGRAM_GRAPH_ACCESS_TOKEN
+  const token = rawToken?.replace(/\s+/g, '').trim()
+  const igUserId = process.env.INSTAGRAM_IG_USER_ID?.trim()
+  if (!token || !igUserId) {
     return { success: false, error: 'Instagram Graph API not configured (INSTAGRAM_GRAPH_ACCESS_TOKEN, INSTAGRAM_IG_USER_ID)' }
   }
 
@@ -161,7 +161,11 @@ export async function publishDishToInstagram(dishId: string): Promise<PublishToI
   const createData = (await createRes.json()) as { id?: string; error?: { message: string; code?: number } }
   if (createData.error) {
     console.error('Instagram Graph API create container error:', createData.error)
-    return { success: false, error: createData.error.message || 'Failed to create media container' }
+    let msg = createData.error.message || 'Failed to create media container'
+    if (msg.toLowerCase().includes('parse') && msg.toLowerCase().includes('token')) {
+      msg = 'Invalid Instagram access token. In Vercel (and .env), ensure INSTAGRAM_GRAPH_ACCESS_TOKEN has no extra spaces or newlines and is the full token from Meta.'
+    }
+    return { success: false, error: msg }
   }
   if (!createData.id) {
     return { success: false, error: 'No container ID returned from Instagram' }

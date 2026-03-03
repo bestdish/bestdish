@@ -241,7 +241,12 @@ export async function curateDish(input: CurateDishInput): Promise<CurateDishResu
       }
     })
     
-    const descriptionSources = articlesToDescriptionSources(restaurantData.articles)
+    let descriptionSources = articlesToDescriptionSources(restaurantData.articles)
+    if (descriptionSources.length === 0 && aiContent.quotes?.length) {
+      descriptionSources = aiContent.quotes
+        .filter((q): q is { text: string; source: string; url?: string } => !!q.source && !!q.url)
+        .map(q => ({ name: q.source, url: q.url! }))
+    }
 
     const dishData = {
       name: input.dishName,
