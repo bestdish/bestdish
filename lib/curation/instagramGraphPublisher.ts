@@ -70,7 +70,7 @@ function generateHashtags(
 
 function buildCaption(dish: {
   name: string
-  description: string
+  description: string | null
   restaurant: { name: string; instagramHandle: string | null; city: { name: string }; cuisine: string | null }
 }): string {
   let restaurantInstagram = dish.restaurant.instagramHandle
@@ -88,10 +88,11 @@ function buildCaption(dish: {
     dish.restaurant.city.name,
     dish.restaurant.cuisine
   )
+  const descriptionText = (dish.description ?? '').slice(0, 1500)
   const lines = [
     `${dish.name} at ${dish.restaurant.name} 🍽`,
     '',
-    dish.description.slice(0, 1500),
+    descriptionText,
     '',
     `${restaurantInstagram} · ${location}`,
     '',
