@@ -300,3 +300,5 @@ If you want to disable automatic Instagram posting:
 
 The Curated Dish Tool will continue to work normally, it just won't trigger Instagram posting.
 
+
+

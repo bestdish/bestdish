@@ -53,10 +53,11 @@ model Dish {
   photoUrl        String?
   isBest          Boolean    @default(false)
   isFeatured      Boolean    @default(false)
-  editorialQuote  String?    @db.Text
-  editorialSource String?
-  editorialUrl    String?
-  faqAnswers      Json?
+  editorialQuote   String?    @db.Text
+  editorialSource  String?
+  editorialUrl     String?
+  descriptionSources Json?   // [{ name: string, url: string }][]
+  faqAnswers       Json?
   reviews         Review[]
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt

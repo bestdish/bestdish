@@ -2,6 +2,7 @@
  * Auto-publish dish data to database
  */
 
+import { Prisma } from '@prisma/client'
 import { prisma } from '../prisma'
 import { slugify } from '../seo'
 import type { AIAnalysisResult } from './ai-analyzer'
@@ -38,6 +39,8 @@ function validateDishData(analysis: AIAnalysisResult): { valid: boolean; error?:
 /**
  * Publish dish to database with editorial data
  */
+export type DescriptionSource = { name: string; url: string }
+
 export async function publishDish(
   restaurantId: string,
   analysis: AIAnalysisResult,
@@ -45,7 +48,8 @@ export async function publishDish(
   editorialQuote?: string | null,
   editorialSource?: string | null,
   editorialUrl?: string | null,
-  faqAnswers?: any
+  faqAnswers?: any,
+  descriptionSources?: DescriptionSource[] | null
 ): Promise<PublishResult> {
   try {
     // Validate data
@@ -78,6 +82,10 @@ export async function publishDish(
       editorialQuote: editorialQuote || null,
       editorialSource: editorialSource || null,
       editorialUrl: editorialUrl || null,
+      descriptionSources:
+        descriptionSources && descriptionSources.length > 0
+          ? (descriptionSources as unknown as Prisma.InputJsonValue)
+          : Prisma.JsonNull,
       faqAnswers: faqAnswers || null
     }
     

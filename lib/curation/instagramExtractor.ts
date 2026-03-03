@@ -169,3 +169,70 @@ export async function extractInstagramImage(postUrl: string): Promise<string | n
   }
 }
 
+export interface InstagramPostData {
+  imageUrl: string | null
+  caption: string | null
+}
+
+function extractImageFromHtml(html: string): string | null {
+  const displayUrlMatch = html.match(/"display_url":"([^"]+)"/i)
+  if (displayUrlMatch?.[1]) {
+    const url = displayUrlMatch[1]
+      .replace(/\\u([0-9a-fA-F]{4})/g, (_, code: string) => String.fromCharCode(parseInt(code, 16)))
+      .replace(/\\\//g, '/')
+    if (!url.includes('instagram-logo') && !url.includes('/static/')) return url
+  }
+  const scontentMatches = html.matchAll(/(https:\/\/scontent[^"'\s]*\.cdninstagram\.com[^"'\s]*\.(?:jpg|jpeg|png|webp)(?:\?[^"'\s]*)?)/gi)
+  const urls = Array.from(scontentMatches).map(m => m[1]).filter(u =>
+    !u.includes('instagram-logo') && !u.includes('/static/') && !u.includes('profile') && !u.includes('avatar') && !u.includes('150x150')
+  )
+  if (urls[0]) return urls[0]
+  const ogImage = html.match(/<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/i)
+  if (ogImage?.[1] && !ogImage[1].includes('instagram-logo')) return ogImage[1]
+  return null
+}
+
+function extractCaptionFromHtml(html: string): string | null {
+  const ogDesc = html.match(/<meta\s+property=["']og:description["']\s+content=["']([^"']*)["']/i)
+  if (ogDesc?.[1]?.trim()) return ogDesc[1].trim()
+  const edgeCaption = html.match(/"edge_media_to_caption":\s*\{\s*"edges":\s*\[\s*\{\s*"node":\s*\{\s*"text":\s*"((?:[^"\\]|\\.)*)"/)
+  if (edgeCaption?.[1]) {
+    try {
+      return JSON.parse('"' + edgeCaption[1].replace(/\\"/g, '"') + '"') as string
+    } catch {
+      return edgeCaption[1].replace(/\\n/g, '\n')
+    }
+  }
+  return null
+}
+
+/**
+ * Fetch Instagram post page once and extract both image URL and caption.
+ * Use this for pipelines that need caption (e.g. dish name extraction).
+ * Reuses extractInstagramImage for image (all its fallbacks); fetches page for caption.
+ */
+export async function extractInstagramPostData(postUrl: string): Promise<InstagramPostData> {
+  try {
+    const imageUrl = await extractInstagramImage(postUrl)
+    let caption: string | null = null
+    try {
+      const response = await fetch(postUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        },
+      })
+      if (response.ok) {
+        const html = await response.text()
+        caption = extractCaptionFromHtml(html)
+      }
+    } catch {
+      // caption optional; we may still have imageUrl
+    }
+    return { imageUrl, caption }
+  } catch (error) {
+    console.error('extractInstagramPostData error:', error)
+    return { imageUrl: null, caption: null }
+  }
+}
+

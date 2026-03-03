@@ -108,3 +108,5 @@ export function generateRestaurantSlug(name: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
+
+

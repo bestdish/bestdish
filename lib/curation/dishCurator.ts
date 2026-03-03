@@ -3,6 +3,7 @@
  * Orchestrates the curated dish creation process
  */
 
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { enrichRestaurantData } from './webEnricher'
 import { matchRestaurant, generateRestaurantSlug } from './restaurantMatcher'
@@ -11,6 +12,7 @@ import { generateFAQs } from '@/lib/scraper/ai-analyzer'
 import { downloadInstagramWithInstaloader } from './instaloaderExtractor'
 import { normalizeCuisine } from './cuisineMapper'
 import { slugify } from '@/lib/seo'
+import { articlesToDescriptionSources } from '@/lib/descriptionSources'
 import { createAdminClient } from '@/lib/supabaseAdmin'
 import sharp from 'sharp'
 import axios from 'axios'
@@ -228,6 +230,8 @@ export async function curateDish(input: CurateDishInput): Promise<CurateDishResu
       }
     })
     
+    const descriptionSources = articlesToDescriptionSources(restaurantData.articles)
+
     const dishData = {
       name: input.dishName,
       slug: dishSlug,
@@ -240,6 +244,10 @@ export async function curateDish(input: CurateDishInput): Promise<CurateDishResu
       editorialQuote: editorialQuote?.text || null,
       editorialSource: editorialQuote?.source || null,
       editorialUrl: editorialQuote?.url || null,
+      descriptionSources:
+        descriptionSources.length > 0
+          ? (descriptionSources as unknown as Prisma.InputJsonValue)
+          : Prisma.JsonNull,
       faqAnswers: faqs as any
     }
     
