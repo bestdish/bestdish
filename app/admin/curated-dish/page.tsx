@@ -92,9 +92,10 @@ export default function CuratedDishPage() {
           dishUrl: data.dish.url
         })
       } else {
+        const errorMessage = data.error || data.progress?.find((s: string) => s.includes('❌'))?.replace(/^\s*❌\s*/, '') || 'Unknown error occurred'
         setResult({
           success: false,
-          error: data.error || 'Unknown error occurred'
+          error: errorMessage
         })
       }
     } catch (error) {
