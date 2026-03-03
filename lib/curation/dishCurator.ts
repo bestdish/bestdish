@@ -177,19 +177,23 @@ export async function curateDish(input: CurateDishInput): Promise<CurateDishResu
     
     // Step 5: Generate AI content for the SPECIFIC dish user requested
     progress.push(`🤖 Generating AI content for "${input.dishName}"...`)
-    const aiContent = await generateCuratedDishContent(
-      input.dishName,
-      restaurantData.name,
-      city.name,
-      restaurantData.scrapedContent
-    )
-    
+    let aiContent: Awaited<ReturnType<typeof generateCuratedDishContent>>
+    try {
+      aiContent = await generateCuratedDishContent(
+        input.dishName,
+        restaurantData.name,
+        city.name,
+        restaurantData.scrapedContent
+      )
+    } catch (aiError) {
+      const message = aiError instanceof Error ? aiError.message : 'Failed to generate AI content'
+      progress.push(`  ❌ ${message}`)
+      return { success: false, error: message, progress }
+    }
     if (!aiContent) {
-      return {
-        success: false,
-        error: 'Failed to generate AI content',
-        progress
-      }
+      const message = 'Failed to generate AI content (no response from AI).'
+      progress.push(`  ❌ ${message}`)
+      return { success: false, error: message, progress }
     }
     
     progress.push(`  ✓ Generated description (${aiContent.description.split(' ').length} words)`)
