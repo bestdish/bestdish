@@ -154,7 +154,7 @@ async function analyzeSourcePageContext(
     
     // Use Gemini to analyze the text
     const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
     
     const prompt = `Analyze this webpage text and count mentions of the restaurant and dish.
 
@@ -219,7 +219,7 @@ async function verifySingleImage(
   
   try {
     const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
     
     const prompt = `You are a strict food photography validator. Analyze this image URL and determine if it shows ACTUAL PREPARED FOOD as the primary subject.
 
