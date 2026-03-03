@@ -89,7 +89,7 @@ The script will:
 - **Generate the article** (150–200 word description, cuisine, price, quotes) using your existing Curated Dish logic.
 - Write **`output-dish-for-review.json`** with dish name, image URL, description, and metadata.
 
-If the match check fails, the script exits and does not write the article (so bad pairs never get a “ready for review” file). If it passes, you get one JSON file per run that you can use to **review before go-live**. Later we can turn this into an automated platform with a queue where you only approve/reject.
+If the match check fails, the script exits and does not write the article (so bad pairs never get a “ready for review” file). If it passes, you get one JSON file per run that you can use to **review before go-live**. The same pipeline logic lives in **`lib/curation/instagramPostPipeline.ts`** and is used by the **Curated Dish Tool → Photo → "From Instagram post"** tab: paste post URL, restaurant name, city (and optional dish name), click "Fetch from Instagram". If the image can't be fetched, the form pre-fills and you upload the image manually.
 
 ---
 

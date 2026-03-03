@@ -9,7 +9,9 @@ import { enrichRestaurantData } from './webEnricher'
 import { matchRestaurant, generateRestaurantSlug } from './restaurantMatcher'
 import { generateCuratedDishContent } from './aiContentGenerator'
 import { generateFAQs } from '@/lib/scraper/ai-analyzer'
+import { extractInstagramPostData } from './instagramExtractor'
 import { downloadInstagramWithInstaloader } from './instaloaderExtractor'
+import { publishDishToInstagram } from './instagramGraphPublisher'
 import { normalizeCuisine } from './cuisineMapper'
 import { slugify } from '@/lib/seo'
 import { articlesToDescriptionSources } from '@/lib/descriptionSources'
@@ -135,18 +137,23 @@ export async function curateDish(input: CurateDishInput): Promise<CurateDishResu
         progress.push(`  ⚠ Photo upload failed`)
       }
     } else if (input.photoUrl) {
-      // Check if it's an Instagram URL
+      // Check if it's an Instagram URL: try public extraction first, then Instaloader
       if (input.photoUrl.includes('instagram.com')) {
         progress.push('  Extracting image from Instagram post...')
-        const base64Image = await downloadInstagramWithInstaloader(input.photoUrl)
-        
-        if (base64Image) {
-          photoPath = await uploadPhotoFromBase64(base64Image, input.dishName)
-          if (photoPath) {
-            progress.push(`  ✓ Instagram photo uploaded`)
-          } else {
-            progress.push(`  ⚠ Photo upload failed`)
+        const { imageUrl: imageUrlFromPost } = await extractInstagramPostData(input.photoUrl)
+        if (imageUrlFromPost) {
+          progress.push('  Got image URL, downloading...')
+          photoPath = await downloadAndUploadPhotoUrl(imageUrlFromPost, input.dishName)
+        }
+        if (!photoPath) {
+          progress.push('  Trying Instaloader fallback...')
+          const base64Image = await downloadInstagramWithInstaloader(input.photoUrl)
+          if (base64Image) {
+            photoPath = await uploadPhotoFromBase64(base64Image, input.dishName)
           }
+        }
+        if (photoPath) {
+          progress.push(`  ✓ Instagram photo uploaded`)
         } else {
           progress.push(`  ⚠ Could not extract Instagram image`)
           progress.push(`  💡 Try using Upload tab instead`)
@@ -270,8 +277,16 @@ export async function curateDish(input: CurateDishInput): Promise<CurateDishResu
     progress.push(`   Name: ${dish.name}`)
     progress.push(`   URL: /${input.citySlug}/${dish.slug}`)
     
-    // Step 9: Trigger Make.com webhook for Instagram posting
-    if (process.env.MAKE_WEBHOOK_URL) {
+    // Step 9: Post to Instagram (Graph API preferred, else Make.com webhook)
+    if (process.env.INSTAGRAM_GRAPH_ACCESS_TOKEN && process.env.INSTAGRAM_IG_USER_ID) {
+      progress.push('📸 Posting to Instagram...')
+      const igResult = await publishDishToInstagram(dish.id)
+      if (igResult.success) {
+        progress.push(`  ✓ Instagram post published`)
+      } else {
+        progress.push(`  ⚠ Instagram post failed: ${igResult.error ?? 'unknown'}`)
+      }
+    } else if (process.env.MAKE_WEBHOOK_URL) {
       progress.push('📸 Triggering Instagram post...')
       try {
         const response = await fetch(process.env.MAKE_WEBHOOK_URL, {
@@ -279,7 +294,6 @@ export async function curateDish(input: CurateDishInput): Promise<CurateDishResu
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ dishId: dish.id })
         })
-        
         if (response.ok) {
           progress.push(`  ✓ Instagram post queued`)
         } else {
