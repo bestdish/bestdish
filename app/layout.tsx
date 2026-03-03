@@ -67,7 +67,7 @@ export default function RootLayout({
               <div>
                 <h3 className="font-semibold text-white mb-3" style={{ fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>Legal</h3>
                 <ul className="space-y-2 text-sm text-white/70">
-                  <li><Link href="#" className="hover:text-primary" style={{ fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>Privacy</Link></li>
+                  <li><Link href="/privacy" className="hover:text-primary" style={{ fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>Privacy</Link></li>
                   <li><Link href="#" className="hover:text-primary" style={{ fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>Terms</Link></li>
                 </ul>
               </div>
