@@ -31,7 +31,7 @@ export async function analyzeDishContent(
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
     const prompt = `You are an expert food critic writing an original review for "${restaurantName}" in ${city}, UK.
 
@@ -206,7 +206,7 @@ export async function generateFAQs(
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
     const prompt = `Generate concise, helpful FAQ answers for ${dishName} at ${restaurantName} in ${city}.
 
