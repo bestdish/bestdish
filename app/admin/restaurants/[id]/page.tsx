@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import PhotoUpload from '@/components/PhotoUpload'
 import { toast } from 'sonner'
-import { ArrowLeft, Save, Trash2, Loader2 } from 'lucide-react'
+import { ArrowLeft, Save, Trash2, Loader2, Instagram } from 'lucide-react'
 import Link from 'next/link'
 import { use } from 'react'
 
@@ -45,6 +45,7 @@ export default function EditRestaurantPage({ params }: { params: Promise<{ id: s
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [postingToIg, setPostingToIg] = useState(false)
   
   // Restaurant fields
   const [name, setName] = useState('')
@@ -159,6 +160,24 @@ export default function EditRestaurantPage({ params }: { params: Promise<{ id: s
       toast.error('Failed to update restaurant')
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handlePostToInstagram = async () => {
+    if (!dishId) return
+    setPostingToIg(true)
+    try {
+      const res = await fetch(`/api/admin/dishes/${dishId}/post-to-instagram`, { method: 'POST' })
+      const data = await res.json()
+      if (data.success) {
+        toast.success('Posted to Instagram!')
+      } else {
+        toast.error(data.error || 'Failed to post to Instagram')
+      }
+    } catch (e) {
+      toast.error('Failed to post to Instagram')
+    } finally {
+      setPostingToIg(false)
     }
   }
 
@@ -408,6 +427,31 @@ export default function EditRestaurantPage({ params }: { params: Promise<{ id: s
                   ⭐ Feature this dish on homepage
                 </label>
               </div>
+
+              {dishId && dishPhotoUrl && dishDescription?.trim() && (
+                <div className="pt-4 border-t border-gray-700">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handlePostToInstagram}
+                    disabled={postingToIg}
+                    className="bg-pink-900/20 border-pink-600/30 text-pink-300 hover:bg-pink-900/40"
+                  >
+                    {postingToIg ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Posting...
+                      </>
+                    ) : (
+                      <>
+                        <Instagram className="h-4 w-4 mr-2" />
+                        Post to Instagram
+                      </>
+                    )}
+                  </Button>
+                  <p className="text-xs text-gray-500 mt-2">Posts this dish to the BestDish Instagram account.</p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
