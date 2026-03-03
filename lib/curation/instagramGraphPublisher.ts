@@ -5,7 +5,8 @@
 
 import { prisma } from '@/lib/prisma'
 
-const GRAPH_API_BASE = 'https://graph.facebook.com/v21.0'
+// Use graph.instagram.com for IG tokens (graph.facebook.com can return "Cannot parse access token")
+const GRAPH_API_BASE = 'https://graph.instagram.com/v21.0'
 
 export interface PublishToInstagramResult {
   success: boolean
@@ -109,9 +110,10 @@ function buildCaption(dish: {
 export async function publishDishToInstagram(dishId: string): Promise<PublishToInstagramResult> {
   const rawToken = process.env.INSTAGRAM_GRAPH_ACCESS_TOKEN
   const token = rawToken?.replace(/\s+/g, '').trim()
-  const igUserId = process.env.INSTAGRAM_IG_USER_ID?.trim()
-  if (!token || !igUserId) {
-    return { success: false, error: 'Instagram Graph API not configured (INSTAGRAM_GRAPH_ACCESS_TOKEN, INSTAGRAM_IG_USER_ID)' }
+  // graph.instagram.com uses "me" for the authenticated user; IG_USER_ID optional for graph.facebook.com fallback
+  const igUserId = process.env.INSTAGRAM_IG_USER_ID?.trim() || 'me'
+  if (!token) {
+    return { success: false, error: 'Instagram Graph API not configured (INSTAGRAM_GRAPH_ACCESS_TOKEN)' }
   }
 
   const dish = await prisma.dish.findUnique({
@@ -163,6 +165,7 @@ export async function publishDishToInstagram(dishId: string): Promise<PublishToI
     console.error('Instagram Graph API create container error:', createData.error)
     let msg = createData.error.message || 'Failed to create media container'
     if (msg.toLowerCase().includes('parse') && msg.toLowerCase().includes('token')) {
+      console.error('INSTAGRAM_GRAPH_ACCESS_TOKEN length:', token.length, '(Meta long-lived tokens are usually 200+)')
       msg = 'Invalid Instagram access token. In Vercel (and .env), ensure INSTAGRAM_GRAPH_ACCESS_TOKEN has no extra spaces or newlines and is the full token from Meta.'
     }
     return { success: false, error: msg }
