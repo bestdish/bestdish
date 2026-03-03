@@ -33,7 +33,7 @@ export async function generateCuratedDishContent(
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
 
     const prompt = `You are an expert food critic writing an original review for "${dishName}" at "${restaurantName}" in ${city}, UK.
 

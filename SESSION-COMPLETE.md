@@ -11,7 +11,7 @@
 - **Google Places API:** `***REDACTED***` ✅
 - **Google Custom Search:** `***REDACTED***` ✅
 - **Search Engine ID:** `b7cd7b65f9da24548` ✅
-- **Gemini AI:** `***REDACTED***` ✅
+- **Gemini AI:** (set in .env / Vercel only, do not commit) ✅
 - **Fixed:** Legacy vs New Places API conflict
 
 ### 2. ✅ Expanded Manchester Content

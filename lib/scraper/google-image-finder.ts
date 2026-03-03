@@ -1,5 +1,8 @@
 /**
- * Google Image finder with AI verification
+ * Image finder with AI verification
+ *
+ * Uses Serper (serper.dev) for image search. Requires SERPER_API_KEY.
+ * You primarily use Instagram URLs for dish photos; this is for bulk scraper fallback.
  */
 
 import axios from 'axios'
@@ -10,51 +13,55 @@ export interface ImageSearchResult {
   width: number
   height: number
   thumbnail: string
-  contextLink?: string  // URL of the page containing the image
+  contextLink?: string
 }
 
 /**
- * Search Google Images for dish photos
- * Returns images sorted by size (largest first)
+ * Search for dish photos using Serper Images API
  */
 export async function searchDishImages(
   dishName: string,
   restaurantName: string
 ): Promise<ImageSearchResult[]> {
-  const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_API_KEY
-  const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID
-  
-  if (!apiKey || !searchEngineId) {
-    console.log('    ⚠️  Google Custom Search not configured')
+  const apiKey = process.env.SERPER_API_KEY
+
+  if (!apiKey) {
+    console.log('    ⚠️  SERPER_API_KEY not configured (image search skipped)')
     return []
   }
-  
+
   try {
-    // Simplified search query: just restaurant name + dish name
     const query = `${restaurantName} ${dishName}`
-    // Removed imgSize filter - let our pixel filter handle quality
-    const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${encodeURIComponent(query)}&searchType=image&num=10&safe=active`
-    
-    console.log(`    🔍 Searching: "${query}"`)
-    const response = await axios.get(url, { timeout: 10000 })
-    
-    if (!response.data.items || response.data.items.length === 0) {
-      console.log('    ⚠️  No images found in search results')
+    console.log(`    🔍 Searching images: "${query}"`)
+
+    const response = await axios.post(
+      'https://google.serper.dev/images',
+      { q: query, num: 10 },
+      {
+        timeout: 10000,
+        headers: {
+          'X-API-KEY': apiKey,
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+
+    const items = response.data?.images ?? response.data?.imageResults ?? []
+    if (items.length === 0) {
+      console.log('    ⚠️  No images found')
       return []
     }
-    
-    console.log(`    ✓ Found ${response.data.items.length} total images`)
-    
-    // Map all images with their source page context
-    const allImages: ImageSearchResult[] = response.data.items
-      .map((item: any) => ({
-        url: item.link,
-        width: parseInt(item.image?.width || '0'),
-        height: parseInt(item.image?.height || '0'),
-        thumbnail: item.image?.thumbnailLink || item.link,
-        contextLink: item.image?.contextLink || item.link // Source page URL
-      }))
-    
+
+    console.log(`    ✓ Found ${items.length} images`)
+
+    const allImages: ImageSearchResult[] = items.map((item: any) => ({
+      url: item.imageUrl ?? item.url ?? item.link ?? item.original ?? '',
+      width: parseInt(item.imageWidth ?? item.width ?? item.originalWidth ?? '0'),
+      height: parseInt(item.imageHeight ?? item.height ?? item.originalHeight ?? '0'),
+      thumbnail: item.thumbnailUrl ?? item.thumbnail ?? item.imageUrl ?? '',
+      contextLink: item.pageUrl ?? item.link ?? item.referrerUrl ?? item.imageUrl,
+    })).filter((img: ImageSearchResult) => img.url)
+
     // Sort by total pixel count (largest first)
     const sortedImages = allImages
       .sort((a, b) => (b.width * b.height) - (a.width * a.height))
@@ -79,7 +86,7 @@ export async function searchDishImages(
     console.log(`    ✓ Found ${images.length} web-quality images (400px+ dimension or 0.12MP+)`)
     return images
   } catch (error: any) {
-    console.log(`    ❌ Image search failed: ${error.response?.data?.error?.message || error.message}`)
+    console.log(`    ❌ Image search failed: ${error.response?.data?.message ?? error.message}`)
     return []
   }
 }
@@ -147,7 +154,7 @@ async function analyzeSourcePageContext(
     
     // Use Gemini to analyze the text
     const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
     
     const prompt = `Analyze this webpage text and count mentions of the restaurant and dish.
 
@@ -212,7 +219,7 @@ async function verifySingleImage(
   
   try {
     const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
     
     const prompt = `You are a strict food photography validator. Analyze this image URL and determine if it shows ACTUAL PREPARED FOOD as the primary subject.
 
