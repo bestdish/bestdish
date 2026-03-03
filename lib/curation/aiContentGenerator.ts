@@ -75,26 +75,39 @@ Return ONLY the JSON, no other text.`
     const result = await model.generateContent(prompt)
     const response = await result.response
     const text = response.text()
+    if (!text?.trim()) {
+      console.error('Gemini returned empty or blocked response')
+      throw new Error('AI returned no content (possible safety block or quota). Try again or simplify the dish name.')
+    }
     
     // Extract JSON from response
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (!jsonMatch) {
-      console.error('No JSON found in Gemini response:', text)
-      return null
+      console.error('No JSON found in Gemini response:', text?.slice(0, 500))
+      throw new Error('Gemini did not return valid JSON. Try again or add more dish/restaurant context.')
     }
     
-    const content = JSON.parse(jsonMatch[0]) as CuratedDishContent
+    let content: CuratedDishContent
+    try {
+      content = JSON.parse(jsonMatch[0]) as CuratedDishContent
+    } catch (parseErr) {
+      console.error('Gemini JSON parse error:', parseErr, 'Raw:', jsonMatch[0]?.slice(0, 300))
+      throw new Error('AI response was malformed. Please try again.')
+    }
     
     // Validate result
     if (!content.description || content.description.length < 50) {
-      console.error('Description too short in AI result')
-      return null
+      console.error('Description too short in AI result:', content.description?.length)
+      throw new Error('AI description was too short. Try adding more context about the dish or restaurant.')
     }
     
     return content
   } catch (error) {
-    console.error('AI content generation error:', error)
-    return null
+    if (error instanceof Error) {
+      console.error('AI content generation error:', error)
+      throw error
+    }
+    throw new Error('Failed to generate AI content. Check GEMINI_API_KEY and try again.')
   }
 }
 
