@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Upload, Link as LinkIcon, Loader2, CheckCircle, XCircle, Sparkles } from 'lucide-react'
+import { Upload, Link as LinkIcon, Loader2, CheckCircle, XCircle, Sparkles, Instagram } from 'lucide-react'
 import Link from 'next/link'
 
 interface City {
@@ -33,9 +33,17 @@ export default function CuratedDishPage() {
   const [isNewCity, setIsNewCity] = useState(false)
   const [restaurantName, setRestaurantName] = useState('')
   const [isFeatured, setIsFeatured] = useState(false)
-  const [photoMode, setPhotoMode] = useState<'upload' | 'url'>('upload')
+  const [photoMode, setPhotoMode] = useState<'upload' | 'url' | 'from-instagram'>('upload')
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoUrl, setPhotoUrl] = useState('')
+
+  // From Instagram post state
+  const [igPostUrl, setIgPostUrl] = useState('')
+  const [igDishName, setIgDishName] = useState('')
+  const [igRestaurantName, setIgRestaurantName] = useState('')
+  const [fetchLoading, setFetchLoading] = useState(false)
+  const [fetchError, setFetchError] = useState<string | null>(null)
+  const [extractionFailedMessage, setExtractionFailedMessage] = useState<string | null>(null)
 
   // Load cities
   useEffect(() => {
@@ -108,6 +116,64 @@ export default function CuratedDishPage() {
     setPhotoUrl('')
     setProgress([])
     setResult(null)
+    setIgPostUrl('')
+    setIgDishName('')
+    setIgRestaurantName('')
+    setFetchError(null)
+    setExtractionFailedMessage(null)
+  }
+
+  const handleFetchFromInstagram = async () => {
+    if (!igPostUrl.trim() || !citySlug || !igRestaurantName.trim()) {
+      setFetchError('Post URL, City, and Restaurant name are required.')
+      return
+    }
+    setFetchLoading(true)
+    setFetchError(null)
+    setExtractionFailedMessage(null)
+    try {
+      const res = await fetch('/api/admin/curated-dish/from-instagram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          postUrl: igPostUrl.trim(),
+          citySlug,
+          dishName: igDishName.trim() || undefined,
+          restaurantName: igRestaurantName.trim(),
+        }),
+      })
+      const data = await res.json()
+      if (!data.success) {
+        setFetchError(data.error || 'Fetch failed')
+        return
+      }
+      // Pre-fill form
+      if (data.dishName) setDishName(data.dishName)
+      if (data.restaurantName) setRestaurantName(data.restaurantName)
+      if (data.citySlug) setCitySlug(data.citySlug)
+      if (data.instagramHandle) setInstagramHandle(data.instagramHandle)
+      if (data.extractionFailed) {
+        setExtractionFailedMessage("We couldn't fetch the image from Instagram. Please upload the image below, then click Create Curated Dish.")
+        setPhotoMode('upload')
+        setPhotoFile(null)
+        setPhotoUrl('')
+      } else if (data.imageBase64) {
+        const blob = await (await fetch(`data:image/jpeg;base64,${data.imageBase64}`)).blob()
+        const file = new File([blob], 'instagram-dish.jpg', { type: 'image/jpeg' })
+        setPhotoFile(file)
+        setPhotoMode('upload')
+        setPhotoUrl('')
+        setExtractionFailedMessage(null)
+      } else if (data.imageUrl) {
+        setPhotoUrl(data.imageUrl)
+        setPhotoMode('url')
+        setExtractionFailedMessage(null)
+      }
+    } catch (e) {
+      setFetchError(e instanceof Error ? e.message : 'Network error')
+    } finally {
+      setFetchLoading(false)
+    }
   }
 
   return (
@@ -272,15 +338,19 @@ export default function CuratedDishPage() {
               {/* Photo */}
               <div className="space-y-2">
                 <Label className="text-gray-300">Photo * (Recommended: Upload)</Label>
-                <Tabs value={photoMode} onValueChange={(v) => setPhotoMode(v as 'upload' | 'url')}>
+                <Tabs value={photoMode} onValueChange={(v) => setPhotoMode(v as 'upload' | 'url' | 'from-instagram')}>
                   <TabsList className="bg-gray-700">
                     <TabsTrigger value="upload" className="data-[state=active]:bg-cyan-600">
                       <Upload className="h-4 w-4 mr-2" />
-                      Upload (Recommended)
+                      Upload
                     </TabsTrigger>
                     <TabsTrigger value="url" className="data-[state=active]:bg-cyan-600">
                       <LinkIcon className="h-4 w-4 mr-2" />
                       URL
+                    </TabsTrigger>
+                    <TabsTrigger value="from-instagram" className="data-[state=active]:bg-cyan-600">
+                      <Instagram className="h-4 w-4 mr-2" />
+                      From Instagram post
                     </TabsTrigger>
                   </TabsList>
                   
@@ -294,12 +364,17 @@ export default function CuratedDishPage() {
                     />
                     <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
                       <p className="text-xs text-yellow-300">
-                        ⚠️ <strong>Note:</strong> Instagram URLs often fail due to blocking. Upload tab is more reliable!
+                        ⚠️ <strong>Note:</strong> Instagram URLs often fail due to blocking. Upload or From Instagram post is more reliable!
                       </p>
                     </div>
                   </TabsContent>
                   
                   <TabsContent value="upload" className="space-y-2">
+                    {extractionFailedMessage && (
+                      <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                        <p className="text-xs text-amber-200">{extractionFailedMessage}</p>
+                      </div>
+                    )}
                     <Input
                       type="file"
                       accept="image/*"
@@ -317,6 +392,70 @@ export default function CuratedDishPage() {
                         💡 <strong>Recommended:</strong> Right-click Instagram photo → "Save Image As..." → Upload here
                       </p>
                     </div>
+                  </TabsContent>
+
+                  <TabsContent value="from-instagram" className="space-y-4">
+                    <p className="text-sm text-gray-400">
+                      Paste an Instagram post URL and we&apos;ll try to fetch the image and dish details. If image fetch fails, you can upload it below.
+                    </p>
+                    <div className="space-y-2">
+                      <Label className="text-gray-300">Post URL *</Label>
+                      <Input
+                        placeholder="https://www.instagram.com/p/..."
+                        value={igPostUrl}
+                        onChange={(e) => setIgPostUrl(e.target.value)}
+                        disabled={fetchLoading}
+                        className="bg-gray-700 border-gray-600 text-gray-100 rounded-xl"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-gray-300">Restaurant name *</Label>
+                        <Input
+                          placeholder="e.g. Canto"
+                          value={igRestaurantName}
+                          onChange={(e) => setIgRestaurantName(e.target.value)}
+                          disabled={fetchLoading}
+                          className="bg-gray-700 border-gray-600 text-gray-100 rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-gray-300">Dish name (optional)</Label>
+                        <Input
+                          placeholder="e.g. Patatas Bravas"
+                          value={igDishName}
+                          onChange={(e) => setIgDishName(e.target.value)}
+                          disabled={fetchLoading}
+                          className="bg-gray-700 border-gray-600 text-gray-100 rounded-xl"
+                        />
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      City is taken from the dropdown above. Make sure it&apos;s set before fetching.
+                    </p>
+                    {fetchError && (
+                      <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                        <p className="text-sm text-red-200">{fetchError}</p>
+                      </div>
+                    )}
+                    <Button
+                      type="button"
+                      onClick={handleFetchFromInstagram}
+                      disabled={fetchLoading || !citySlug}
+                      className="bg-cyan-600 hover:bg-cyan-700 rounded-xl"
+                    >
+                      {fetchLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Fetching...
+                        </>
+                      ) : (
+                        <>
+                          <Instagram className="mr-2 h-4 w-4" />
+                          Fetch from Instagram
+                        </>
+                      )}
+                    </Button>
                   </TabsContent>
                 </Tabs>
               </div>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { publishDishToInstagram } from '@/lib/curation/instagramGraphPublisher'
 
 export async function POST(
   request: NextRequest,
@@ -27,15 +28,19 @@ export async function POST(
       data: { isBest: true }
     })
 
-    // Trigger Make.com webhook for Instagram posting
-    if (process.env.MAKE_WEBHOOK_URL) {
+    // Post to Instagram: Graph API (preferred) or Make.com webhook fallback
+    if (process.env.INSTAGRAM_GRAPH_ACCESS_TOKEN && process.env.INSTAGRAM_IG_USER_ID) {
+      const igResult = await publishDishToInstagram(id)
+      if (!igResult.success) {
+        console.warn('Instagram Graph API post failed, but dish was published:', igResult.error)
+      }
+    } else if (process.env.MAKE_WEBHOOK_URL) {
       try {
         const response = await fetch(process.env.MAKE_WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ dishId: id })
         })
-        
         if (!response.ok) {
           console.warn('Instagram webhook trigger failed, but dish was published')
         }
