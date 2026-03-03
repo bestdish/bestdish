@@ -14,6 +14,7 @@ export interface RestaurantData {
   cuisine: string | null
   rating: number | null
   scrapedContent: string
+  articles: Array<{ url: string; source: string }>
 }
 
 /**
@@ -51,7 +52,8 @@ export async function enrichRestaurantData(
     phone: details.phone,
     cuisine: details.cuisine,
     rating: details.rating,
-    scrapedContent
+    scrapedContent,
+    articles: articles.map(a => ({ url: a.url, source: a.source })),
   }
 }
 

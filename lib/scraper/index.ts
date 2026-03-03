@@ -8,6 +8,7 @@ import { analyzeDishContent, generateFallbackDescription, selectBestQuote, gener
 import { findVerifiedDishPhoto } from '@/lib/scraper/google-image-finder'
 import { downloadAndUploadPhoto } from '@/lib/scraper/photo-finder'
 import { publishDish, updateRestaurantCuisine } from '@/lib/scraper/publisher'
+import { articlesToDescriptionSources } from '@/lib/descriptionSources'
 
 export interface Restaurant {
   id: string
@@ -145,6 +146,7 @@ export async function processRestaurant(restaurant: Restaurant): Promise<Scraper
     
     // Step 8: Publish to database with editorial data
     console.log(`  💾 Publishing to database...`)
+    const descriptionSources = articlesToDescriptionSources(articles)
     const publishResult = await publishDish(
       restaurant.id,
       analysis,
@@ -152,7 +154,8 @@ export async function processRestaurant(restaurant: Restaurant): Promise<Scraper
       editorialQuote?.quote || null,
       editorialQuote?.source || null,
       editorialQuote?.url || null,
-      faqs
+      faqs,
+      descriptionSources.length > 0 ? descriptionSources : null
     )
     
     if (!publishResult.success) {

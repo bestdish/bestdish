@@ -8,6 +8,7 @@ import { searchRestaurantArticles, combineContent } from '../lib/scraper/sources
 import { analyzeDishContent, generateFAQs } from '../lib/scraper/ai-analyzer'
 import { slugify } from '../lib/seo'
 import { normalizeCuisine } from '../lib/curation/cuisineMapper'
+import { articlesToDescriptionSources } from '../lib/descriptionSources'
 
 interface RestaurantLead {
   name: string
@@ -271,7 +272,8 @@ async function processRestaurant(lead: RestaurantLead, city: any, index: number,
     }
     
     const editorialQuote = analysis.quotes.length > 0 ? analysis.quotes[0] : null
-    
+    const descriptionSources = articlesToDescriptionSources(articles)
+
     console.log(`  💾 Creating pending dish...`)
     await prisma.dish.create({
       data: {
@@ -286,6 +288,7 @@ async function processRestaurant(lead: RestaurantLead, city: any, index: number,
         editorialQuote: editorialQuote?.text || null,
         editorialSource: editorialQuote?.source || null,
         editorialUrl: editorialQuote?.url || null,
+        descriptionSources: descriptionSources.length > 0 ? descriptionSources : null,
         faqAnswers: faqs as any
       }
     })

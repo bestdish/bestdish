@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { generateDishSchema, generateMetaTags } from '@/lib/seo'
 import { getPublicImageUrl } from '@/lib/imageUrl'
 import { Card, CardContent } from '@/components/ui/card'
-import { Star, MapPin, Clock, Users, Heart, Menu } from 'lucide-react'
+import { Star, MapPin, Clock, Users, Heart, Menu, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { Metadata } from 'next'
 import AddCommentForm from '@/components/AddCommentForm'
@@ -325,9 +325,37 @@ export default async function DishPage({ params }: DishPageProps) {
             </h1>
             
             {dish.description && (
-              <p className="text-lg text-foreground/80 leading-relaxed">
-                {dish.description}
-              </p>
+              <>
+                <p className="text-lg text-foreground/80 leading-relaxed">
+                  {dish.description}
+                </p>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  Dish descriptions are generated automatically to give a balanced, unbiased view of what to expect.
+                </p>
+                {dish.descriptionSources &&
+                  Array.isArray(dish.descriptionSources) &&
+                  dish.descriptionSources.length > 0 && (
+                    <div className="mt-2 text-sm text-muted-foreground">
+                      <span className="font-medium">Sources: </span>
+                      {(dish.descriptionSources as { name: string; url: string }[]).map(
+                        (src, i) => (
+                          <span key={src.url}>
+                            {i > 0 && ', '}
+                            <a
+                              href={src.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-primary hover:underline"
+                            >
+                              {src.name}
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          </span>
+                        )
+                      )}
+                    </div>
+                  )}
+              </>
             )}
 
             {/* Restaurant Quick Info - Button CTAs */}
