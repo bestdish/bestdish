@@ -52,7 +52,7 @@ async function extractDishNameFromCaption(caption: string): Promise<string | nul
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) return null
   const genAI = new GoogleGenerativeAI(apiKey)
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
   const prompt = `From this Instagram post caption, what is the specific dish or food item shown? Reply with ONLY the dish name (e.g. "Patatas bravas", "Lamb croquettes"), or the single word "none" if it's not about a specific dish.
 
 Caption:
@@ -69,7 +69,7 @@ async function extractDishNameFromImage(imageBase64: { data: string; mimeType: s
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) return null
   const genAI = new GoogleGenerativeAI(apiKey)
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
   const result = await model.generateContent([
     { inlineData: { mimeType: imageBase64.mimeType, data: imageBase64.data } },
     { text: 'What is the name of this dish or food item? Reply with ONLY a short dish name (e.g. "Patatas bravas"), or "none" if not clearly a single dish.' },
@@ -87,7 +87,7 @@ async function checkImageMatchesDish(
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) return false
   const genAI = new GoogleGenerativeAI(apiKey)
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
   const prompt = `You are a strict validator. Look at this image.
 
 1. Is this ACTUAL PREPARED FOOD as the primary subject? (Plated dish, clear, appetizing. NOT: interiors, people, logos.)

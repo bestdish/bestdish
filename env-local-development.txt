@@ -15,9 +15,8 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhY
 
 # API Keys
 GOOGLE_PLACES_API_KEY=AIzaSyA-m8EdzNzt5lCR-LPRa6Xj1UzwkTwHZk0
-GOOGLE_CUSTOM_SEARCH_API_KEY=AIzaSyAWMTp0jpZMQcf81Ip28aOJzSmoV_oNbtU
-GOOGLE_SEARCH_ENGINE_ID=b7cd7b65f9da24548
-GEMINI_API_KEY=AIzaSyAG7kr2gu_zGkrLmlHM_1lTl-5Jof6m0DU
+SERPER_API_KEY=<get at https://serper.dev/api-key>
+GEMINI_API_KEY=<your-key-from-google-ai-studio-do-not-commit>
 
 # Admin Credentials
 ADMIN_USERNAME=admin

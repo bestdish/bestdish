@@ -125,7 +125,7 @@ bash start-dev.sh
 **Google Places:** `AIzaSyA-m8EdzNzt5lCR-LPRa6Xj1UzwkTwHZk0`  
 **Google Custom Search:** `AIzaSyAWMTp0jpZMQcf81Ip28aOJzSmoV_oNbtU`  
 **Search Engine ID:** `b7cd7b65f9da24548`  
-**Gemini AI:** `AIzaSyAG7kr2gu_zGkrLmlHM_1lTl-5Jof6m0DU`
+**Gemini AI:** (set in .env only, do not commit)
 
 All stored in:
 - `env-local-development.txt` (dev)
