@@ -48,6 +48,7 @@ next-env.d.ts
 prisma/migrations/
 
 # logs
+/logs/
 *.log
 scraper-*.log
 
