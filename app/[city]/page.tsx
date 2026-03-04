@@ -122,7 +122,8 @@ export default async function CityPage({ params }: CityPageProps) {
       name: r.name,
       slug: r.slug,
       rating: r.rating,
-      cuisine: r.cuisine
+      cuisine: r.cuisine,
+      bestDishSlug: r.dishes[0]?.slug ?? null
     }))
   })
 

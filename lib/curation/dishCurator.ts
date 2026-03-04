@@ -19,6 +19,14 @@ import { createAdminClient } from '@/lib/supabaseAdmin'
 import sharp from 'sharp'
 import axios from 'axios'
 
+/** Don't use placeholder/generic names as critic attribution. */
+function normalizeEditorialSource(source: string | null | undefined): string | null {
+  if (!source || !source.trim()) return null
+  const lower = source.trim().toLowerCase()
+  if (lower === 'scraped content' || lower === 'scraped' || lower === 'various sources' || lower === 'various') return null
+  return source.trim()
+}
+
 export interface CurateDishInput {
   instagramHandle: string
   dishName: string
@@ -258,7 +266,7 @@ export async function curateDish(input: CurateDishInput): Promise<CurateDishResu
       isBest: true,
       isFeatured: input.isFeatured,
       editorialQuote: editorialQuote?.text || null,
-      editorialSource: editorialQuote?.source || null,
+      editorialSource: normalizeEditorialSource(editorialQuote?.source) ?? null,
       editorialUrl: editorialQuote?.url || null,
       descriptionSources:
         descriptionSources.length > 0

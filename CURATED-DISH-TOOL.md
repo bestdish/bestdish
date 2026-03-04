@@ -55,7 +55,7 @@ Upon success:
 
 ### 3. Content Scraping
 - Searches for articles and reviews about the restaurant and specific dish
-- Uses Google Custom Search API
+- Uses Serper API for article search
 - Combines content for AI analysis
 
 ### 4. AI Content Generation
@@ -103,7 +103,7 @@ lib/curation/
 ```
 
 ### Infrastructure Reused
-- ✅ Google Custom Search API
+- ✅ SERPER_API_KEY
 - ✅ Gemini AI (same prompts as old scraper)
 - ✅ Supabase image storage
 - ✅ Existing database models

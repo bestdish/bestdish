@@ -5,22 +5,23 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import { getPublicImageUrl } from '@/lib/imageUrl'
 import SearchBar from '@/components/SearchBar'
+import { SHOW_CITIES, FOCUS_CITY_SLUG } from '@/lib/config'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'BestDish - Discover the Best Dishes in Every City',
-  description: 'Find the top-rated dishes, read authentic reviews, and discover hidden culinary gems in cities across the UK. From London to Manchester, explore the best restaurants and dishes.',
+  title: 'BestDish - Discover the Best Dishes in Manchester',
+  description: 'Find the top-rated dishes, read authentic reviews, and discover hidden culinary gems in Manchester. Explore the best restaurants and dishes.',
   openGraph: {
-    title: 'BestDish - Discover the Best Dishes in Every City',
-    description: 'Find the top-rated dishes, read authentic reviews, and discover hidden culinary gems in cities across the UK.',
+    title: 'BestDish - Discover the Best Dishes in Manchester',
+    description: 'Find the top-rated dishes, read authentic reviews, and discover hidden culinary gems in Manchester.',
     type: 'website',
   },
 }
 
 export default async function HomePage() {
-  // Fetch cities
-  const cities = await prisma.city.findMany({
+  // Fetch cities (only when SHOW_CITIES - used by Browse All Cities section)
+  const cities = SHOW_CITIES ? await prisma.city.findMany({
     include: {
       _count: {
         select: {
@@ -31,14 +32,15 @@ export default async function HomePage() {
     orderBy: {
       name: 'asc'
     }
-  })
+  }) : []
 
-  // Fetch latest dishes for "What's New"
+  // Fetch latest dishes for "What's New" - Manchester only
   const latestDishes = await prisma.dish.findMany({
     where: {
       isBest: true,
       restaurant: {
-        isActive: true
+        isActive: true,
+        city: { slug: FOCUS_CITY_SLUG }
       }
     },
     include: {
@@ -54,12 +56,12 @@ export default async function HomePage() {
     take: 12
   })
 
-  // Fetch featured dishes
+  // Fetch featured dishes - Manchester only
   const featuredDishes = await prisma.dish.findMany({
     where: { 
       isFeatured: true, 
       isBest: true, 
-      restaurant: { isActive: true } 
+      restaurant: { isActive: true, city: { slug: FOCUS_CITY_SLUG } } 
     },
     include: { restaurant: { include: { city: true } } },
     orderBy: { createdAt: 'desc' },
@@ -109,7 +111,7 @@ export default async function HomePage() {
   // })
   const cuisines: any[] = [] // Temporarily disabled
 
-  const totalRestaurants = cities.reduce((sum, city) => sum + city._count.restaurants, 0)
+  const totalRestaurants = SHOW_CITIES ? cities.reduce((sum, city) => sum + city._count.restaurants, 0) : 0
 
   // City hero images mapping
   const cityImages: Record<string, string> = {
@@ -155,7 +157,7 @@ export default async function HomePage() {
             "@context": "https://schema.org",
             "@type": "Organization",
             "name": "BestDish",
-            "description": "Discover the best dishes in every city across the UK",
+            "description": "Discover the best dishes in Manchester",
             "url": process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
             "logo": `${process.env.NEXT_PUBLIC_SITE_URL}/logo.png`,
             "sameAs": [],
@@ -246,12 +248,14 @@ export default async function HomePage() {
                             </div>
                           )}
                           
-                          {/* Pill overlays */}
-                          <div className="absolute top-3 left-3">
-                            <span className="px-3 py-1.5 bg-primary backdrop-blur-sm rounded-full text-xs font-bold text-primary-foreground shadow-lg" style={{ fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-                              {dish.restaurant.city.name}
-                            </span>
-                          </div>
+                          {/* Pill overlays - hidden when cities are hidden */}
+                          {SHOW_CITIES && (
+                            <div className="absolute top-3 left-3">
+                              <span className="px-3 py-1.5 bg-primary backdrop-blur-sm rounded-full text-xs font-bold text-primary-foreground shadow-lg" style={{ fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+                                {dish.restaurant.city.name}
+                              </span>
+                            </div>
+                          )}
                         </div>
                         
                         <div className="p-5">
@@ -270,7 +274,35 @@ export default async function HomePage() {
             </div>
           )}
 
-          {/* Browse All Cities - Compact Cards */}
+          {/* Explore Manchester CTA - shown when cities are hidden */}
+          {!SHOW_CITIES && (
+            <div className="mb-20">
+              <Link
+                href="/manchester"
+                className="group block relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 h-[160px] md:h-[200px] border border-border bg-card"
+              >
+                <img 
+                  src="https://images.unsplash.com/photo-1579057318458-50d40ae3241f?w=800&q=80"
+                  alt="Manchester"
+                  className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent group-hover:from-black/80 transition-all"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center px-4">
+                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 drop-shadow-2xl">
+                      Explore <span className="text-primary">Manchester</span>
+                    </h2>
+                    <p className="text-base md:text-lg text-white/90 drop-shadow-lg">
+                      Discover the best dishes in the city
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          )}
+
+          {/* Browse All Cities - Compact Cards (hidden when SHOW_CITIES is false) */}
+          {SHOW_CITIES && (
           <div className="mb-20">
             <h2 className="text-4xl font-bold text-foreground mb-8">Browse All <span className="text-primary">Cities</span></h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
@@ -301,6 +333,7 @@ export default async function HomePage() {
               })}
             </div>
           </div>
+          )}
 
           {/* What's New on BestDish - Horizontal Scroll */}
           <div className="mb-20 -mx-4 sm:mx-0">
@@ -315,7 +348,7 @@ export default async function HomePage() {
                 return (
                   <Link
                     key={dish.id}
-                    href={`/${dish.restaurant.city.slug}/${dish.restaurant.slug}/${dish.slug}`}
+                    href={`/${dish.restaurant.city.slug}/${dish.slug}`}
                     className="group flex-shrink-0"
                   >
                     <div className="w-[280px] bg-card rounded-2xl shadow-md hover:shadow-xl border border-border transition-all duration-300 overflow-hidden">
@@ -332,12 +365,14 @@ export default async function HomePage() {
                           </div>
                         )}
                         
-                        {/* Pill overlays */}
-                        <div className="absolute top-3 left-3">
-                          <span className="px-3 py-1.5 bg-primary backdrop-blur-sm rounded-full text-xs font-bold text-primary-foreground shadow-lg" style={{ fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-                            {dish.restaurant.city.name}
-                          </span>
-                        </div>
+                        {/* Pill overlays - hidden when cities are hidden */}
+                        {SHOW_CITIES && (
+                          <div className="absolute top-3 left-3">
+                            <span className="px-3 py-1.5 bg-primary backdrop-blur-sm rounded-full text-xs font-bold text-primary-foreground shadow-lg" style={{ fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+                              {dish.restaurant.city.name}
+                            </span>
+                          </div>
+                        )}
                       </div>
                       
                       <div className="p-5">

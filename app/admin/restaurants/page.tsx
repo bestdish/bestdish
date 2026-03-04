@@ -35,7 +35,7 @@ export default async function AdminRestaurantsPage() {
   const totalDishes = restaurants.reduce((sum, r) => sum + r.dishes.length, 0)
 
   return (
-    <div className="min-h-screen bg-gray-950 p-8">
+    <div className="min-h-screen bg-gray-950 p-4 sm:p-6 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="space-y-2">

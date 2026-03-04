@@ -19,17 +19,7 @@ export async function GET() {
       select: { slug: true, updatedAt: true }
     })
     
-    // Get all restaurants
-    const restaurants = await prisma.restaurant.findMany({
-      where: { isActive: true },
-      select: { 
-        slug: true, 
-        updatedAt: true,
-        city: { select: { slug: true } }
-      }
-    })
-    
-    // Get all dishes
+    // Get all dishes (no restaurant page - route is /[city]/[dish])
     const dishes = await prisma.dish.findMany({
       select: { 
         slug: true, 
@@ -60,15 +50,6 @@ export async function GET() {
     <lastmod>${city.updatedAt.toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-  </url>`).join('')}
-  
-  <!-- Restaurants -->
-  ${restaurants.map(restaurant => `
-  <url>
-    <loc>${baseUrl}/${restaurant.city.slug}/${restaurant.slug}</loc>
-    <lastmod>${restaurant.updatedAt.toISOString()}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
   </url>`).join('')}
   
   <!-- Dishes -->

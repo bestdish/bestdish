@@ -53,7 +53,7 @@ export async function GET() {
         address: randomDish.restaurant.address
       },
       hashtags: generateHashtags(randomDish.name, randomDish.restaurant.name, randomDish.restaurant.city.name),
-      websiteUrl: `${process.env.NEXT_PUBLIC_URL || 'https://bestdish.co.uk'}/${randomDish.restaurant.city.slug}/${randomDish.restaurant.slug}/${randomDish.slug}`
+      websiteUrl: `${process.env.NEXT_PUBLIC_URL || 'https://bestdish.co.uk'}/${randomDish.restaurant.city.slug}/${randomDish.slug}`
     }
 
     return NextResponse.json(instagramData)

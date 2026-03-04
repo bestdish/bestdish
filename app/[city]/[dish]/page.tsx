@@ -396,7 +396,7 @@ export default async function DishPage({ params }: DishPageProps) {
                 <p className="text-xl italic text-foreground/90 leading-relaxed mb-4">
                   "{dish.editorialQuote}"
                 </p>
-                {dish.editorialSource && (
+                {dish.editorialSource && !/^scraped content$|^scraped$|^various sources?$/i.test(dish.editorialSource.trim()) && (
                   <footer className="text-base text-muted-foreground">
                     — <cite className="not-italic font-semibold">
                       {dish.editorialUrl ? (

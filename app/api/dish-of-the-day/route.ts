@@ -67,7 +67,7 @@ export async function GET() {
     const selectedDish = candidateDishes[randomIndex]
 
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-    const dishUrl = `${baseUrl}/${selectedDish.restaurant.city.slug}/${selectedDish.restaurant.slug}/${selectedDish.slug}`
+    const dishUrl = `${baseUrl}/${selectedDish.restaurant.city.slug}/${selectedDish.slug}`
 
     // Prepare Instagram-ready content
     const response = {
