@@ -36,7 +36,7 @@ ADMIN_PASSWORD=changeme123
 # AI Services
 GEMINI_API_KEY=your-gemini-api-key
 
-# Google Custom Search
+# Serper (Article & Image Search)
 GOOGLE_API_KEY=your-google-api-key
 GOOGLE_CX=your-custom-search-engine-id
 

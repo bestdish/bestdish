@@ -4,6 +4,7 @@ import { Toaster } from 'sonner'
 import Link from 'next/link'
 import "./globals.css";
 import Navigation from '@/components/Navigation'
+import { SHOW_CITIES } from '@/lib/config'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BestDish - Discover the Best Dishes in Every City",
-  description: "Find the top-rated dishes, read authentic reviews, and discover hidden culinary gems in cities across the UK.",
+  title: "BestDish - Discover the Best Dishes in Manchester",
+  description: "Find the top-rated dishes, read authentic reviews, and discover hidden culinary gems in Manchester.",
 };
 
 export default function RootLayout({
@@ -43,7 +44,7 @@ export default function RootLayout({
                   <span className="text-primary">Best</span><span className="text-white">Dish</span><sup className="text-xs text-white">™</sup>
                 </Link>
                 <p className="mt-2 text-sm text-white/70">
-                  Discover the best dishes across the UK
+                  Discover the best dishes in Manchester
                 </p>
               </div>
               
@@ -53,7 +54,7 @@ export default function RootLayout({
                   <li><Link href="/" className="hover:text-primary" style={{ fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>Home</Link></li>
                   <li><Link href="/nationwide" className="hover:text-primary" style={{ fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>Nationwide Chains</Link></li>
                   <li><Link href="/manchester" className="hover:text-primary" style={{ fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>Manchester</Link></li>
-                  <li><Link href="/london" className="hover:text-primary" style={{ fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>London</Link></li>
+                  {SHOW_CITIES && <li><Link href="/london" className="hover:text-primary" style={{ fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>London</Link></li>}
                 </ul>
               </div>
               

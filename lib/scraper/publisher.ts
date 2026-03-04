@@ -41,6 +41,14 @@ function validateDishData(analysis: AIAnalysisResult): { valid: boolean; error?:
  */
 export type DescriptionSource = { name: string; url: string }
 
+/** Don't persist placeholder names as critic attribution. */
+function normalizeEditorialSource(source: string | null | undefined): string | null {
+  if (!source || !source.trim()) return null
+  const lower = source.trim().toLowerCase()
+  if (lower === 'scraped content' || lower === 'scraped' || lower === 'various sources' || lower === 'various') return null
+  return source.trim()
+}
+
 export async function publishDish(
   restaurantId: string,
   analysis: AIAnalysisResult,
@@ -80,7 +88,7 @@ export async function publishDish(
       photoUrl: photoPath,
       isBest: photoPath ? true : false, // Only publish if we have a photo
       editorialQuote: editorialQuote || null,
-      editorialSource: editorialSource || null,
+      editorialSource: normalizeEditorialSource(editorialSource) ?? null,
       editorialUrl: editorialUrl || null,
       descriptionSources:
         descriptionSources && descriptionSources.length > 0

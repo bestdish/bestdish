@@ -178,18 +178,18 @@ export default function CuratedDishPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="min-h-screen bg-gray-950 p-4 sm:p-6 md:p-8">
+      <div className="max-w-4xl mx-auto space-y-6 md:space-y-8">
         {/* Header */}
         <div className="space-y-2">
-          <Link href="/admin" className="inline-flex items-center text-sm text-gray-400 hover:text-cyan-400 mb-4 transition-colors">
+          <Link href="/admin" className="inline-flex items-center text-sm text-gray-400 hover:text-cyan-400 mb-2 md:mb-4 transition-colors py-2 -my-2">
             ← Back to Admin
           </Link>
           <div className="flex items-center gap-3">
-            <Sparkles className="h-8 w-8 text-cyan-400" />
-            <h1 className="text-4xl font-bold text-gray-100">Curated Dish Tool</h1>
+            <Sparkles className="h-7 w-7 sm:h-8 sm:w-8 text-cyan-400 flex-shrink-0" />
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-100">Curated Dish Tool</h1>
           </div>
-          <p className="text-gray-400 text-lg">
+          <p className="text-gray-400 text-base sm:text-lg">
             Manually curate high-quality dishes with AI-powered content generation
           </p>
         </div>
@@ -340,18 +340,19 @@ export default function CuratedDishPage() {
               <div className="space-y-2">
                 <Label className="text-gray-300">Photo * (Recommended: Upload)</Label>
                 <Tabs value={photoMode} onValueChange={(v) => setPhotoMode(v as 'upload' | 'url' | 'from-instagram')}>
-                  <TabsList className="bg-gray-700">
-                    <TabsTrigger value="upload" className="data-[state=active]:bg-cyan-600">
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload
+                  <TabsList className="bg-gray-700 flex flex-wrap gap-1 w-full sm:w-auto">
+                    <TabsTrigger value="upload" className="data-[state=active]:bg-cyan-600 flex-1 sm:flex-initial min-h-[44px] sm:min-h-0 px-3 py-2.5">
+                      <Upload className="h-4 w-4 sm:mr-2 flex-shrink-0" />
+                      <span>Upload</span>
                     </TabsTrigger>
-                    <TabsTrigger value="url" className="data-[state=active]:bg-cyan-600">
-                      <LinkIcon className="h-4 w-4 mr-2" />
-                      URL
+                    <TabsTrigger value="url" className="data-[state=active]:bg-cyan-600 flex-1 sm:flex-initial min-h-[44px] sm:min-h-0 px-3 py-2.5">
+                      <LinkIcon className="h-4 w-4 sm:mr-2 flex-shrink-0" />
+                      <span>URL</span>
                     </TabsTrigger>
-                    <TabsTrigger value="from-instagram" className="data-[state=active]:bg-cyan-600">
-                      <Instagram className="h-4 w-4 mr-2" />
-                      From Instagram post
+                    <TabsTrigger value="from-instagram" className="data-[state=active]:bg-cyan-600 flex-1 sm:flex-initial min-h-[44px] sm:min-h-0 px-3 py-2.5">
+                      <Instagram className="h-4 w-4 sm:mr-2 flex-shrink-0" />
+                      <span className="sm:hidden">From IG</span>
+                      <span className="hidden sm:inline">From Instagram post</span>
                     </TabsTrigger>
                   </TabsList>
                   
@@ -462,11 +463,11 @@ export default function CuratedDishPage() {
               </div>
 
               {/* Submit Button */}
-              <div className="flex gap-3 pt-4 border-t border-gray-700">
+              <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t border-gray-700">
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-cyan-600 hover:bg-cyan-700 rounded-xl text-white"
+                  className="flex-1 bg-cyan-600 hover:bg-cyan-700 rounded-xl text-white min-h-[48px] sm:min-h-0"
                 >
                   {loading ? (
                     <>
@@ -485,7 +486,7 @@ export default function CuratedDishPage() {
                     type="button"
                     onClick={handleReset}
                     variant="outline"
-                    className="bg-gray-700 border-gray-600 hover:bg-gray-600 rounded-xl"
+                    className="bg-gray-700 border-gray-600 hover:bg-gray-600 rounded-xl min-h-[48px] sm:min-h-0"
                   >
                     Create Another
                   </Button>

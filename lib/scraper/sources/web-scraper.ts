@@ -1,9 +1,11 @@
 /**
  * Web scraper for food blog articles
+ *
+ * Uses Serper (serper.dev) for article search - Google Custom Search is deprecated.
+ * Get a free API key at https://serper.dev/api-key (2,500 free queries).
  */
 
 import axios from 'axios'
-import { GoogleGenerativeAI } from '@google/generative-ai'
 
 export interface Article {
   url: string
@@ -11,70 +13,102 @@ export interface Article {
   content: string
 }
 
+const RESTAURANT_REVIEW_SITES = [
+  'manchestersfinest.com',
+  'confidentials.com',
+  'manchesterconfidential.co.uk',
+  'timeout.com',
+  'theguardian.com',
+  'eater.com',
+  'manchestereveningnews.co.uk',
+  'hardens.com',
+  'thegoodfoodguide.co.uk',
+  'andyhayler.com',
+  'foodiva.net',
+  'hungrybritish.com',
+  'squaremeal.co.uk',
+]
+
+function buildSiteRestriction(): string {
+  return RESTAURANT_REVIEW_SITES.map((s) => `site:${s}`).join(' OR ')
+}
+
 /**
- * Search for articles about a restaurant
+ * Search for articles about a restaurant using Serper API
  */
 export async function searchRestaurantArticles(
   restaurantName: string,
   cityName: string
 ): Promise<Article[]> {
-  const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_API_KEY
-  const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID
-  
-  if (!apiKey || !searchEngineId) {
-    console.log('    ⚠️  Google Custom Search not configured')
+  const apiKey = process.env.SERPER_API_KEY
+
+  if (!apiKey) {
+    console.log('    ⚠️  SERPER_API_KEY not configured (get one at https://serper.dev/api-key)')
     return []
   }
-  
+
   try {
-    const query = `${restaurantName} ${cityName} UK review best dish`
-    const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${encodeURIComponent(query)}&num=5`
-    
-    console.log(`    🔍 Searching articles: "${query}"`)
-    const response = await axios.get(url, { timeout: 10000 })
-    
-    if (!response.data.items || response.data.items.length === 0) {
+    const baseQuery = `${restaurantName} ${cityName} UK review best dish`
+    const siteFilter = buildSiteRestriction()
+    const query = `${baseQuery} (${siteFilter})`
+
+    console.log(`    🔍 Searching articles: "${baseQuery}"`)
+    const response = await axios.post(
+      'https://google.serper.dev/search',
+      { q: query, num: 10 },
+      {
+        timeout: 10000,
+        headers: {
+          'X-API-KEY': apiKey,
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+
+    const organic = response.data?.organic ?? []
+    if (organic.length === 0) {
       console.log('    ⚠️  No articles found')
       return []
     }
-    
-    console.log(`    ✓ Found ${response.data.items.length} articles`)
-    
+
+    console.log(`    ✓ Found ${organic.length} articles`)
+
     const articles: Article[] = []
-    
-    for (const item of response.data.items.slice(0, 3)) {
+
+    for (const item of organic.slice(0, 3)) {
+      const link = item.url ?? item.link
+      if (!link) continue
+
       try {
-        // Fetch article content
-        const articleResponse = await axios.get(item.link, {
+        const articleResponse = await axios.get(link, {
           timeout: 8000,
           headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
           },
-          maxContentLength: 200000
+          maxContentLength: 200000,
         })
-        
-        // Extract text content
+
         let text = articleResponse.data.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
         text = text.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
         text = text.replace(/<[^>]+>/g, ' ')
         text = text.replace(/\s+/g, ' ').trim()
-        
+
         if (text.length > 200) {
           articles.push({
-            url: item.link,
-            source: new URL(item.link).hostname.replace('www.', ''),
-            content: text.substring(0, 3000)
+            url: link,
+            source: new URL(link).hostname.replace('www.', ''),
+            content: text.substring(0, 3000),
           })
         }
-      } catch (error) {
-        console.log(`    ⚠️  Failed to fetch article: ${item.link}`)
+      } catch {
+        console.log(`    ⚠️  Failed to fetch article: ${link}`)
       }
     }
-    
+
     console.log(`    ✓ Scraped ${articles.length} articles successfully`)
     return articles
   } catch (error: any) {
-    console.log(`    ❌ Article search failed: ${error.message}`)
+    console.log(`    ❌ Article search failed: ${error.response?.data?.message ?? error.message}`)
     return []
   }
 }

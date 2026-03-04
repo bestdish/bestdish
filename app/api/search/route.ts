@@ -102,17 +102,22 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Format restaurant results
-    const restaurantResults = restaurants.map(restaurant => ({
-      type: 'restaurant' as const,
-      id: restaurant.id,
-      name: restaurant.name,
-      slug: restaurant.slug,
-      cityName: restaurant.city.name,
-      citySlug: restaurant.city.slug,
-      dishCount: restaurant.dishes.length,
-      url: `/${restaurant.city.slug}/${restaurant.slug}`
-    }))
+    // Format restaurant results - link to best dish (route is /[city]/[dish], not restaurant)
+    const restaurantResults = restaurants
+      .filter(restaurant => restaurant.dishes.length > 0)
+      .map(restaurant => {
+        const bestDish = restaurant.dishes[0]
+        return {
+          type: 'restaurant' as const,
+          id: restaurant.id,
+          name: restaurant.name,
+          slug: restaurant.slug,
+          cityName: restaurant.city.name,
+          citySlug: restaurant.city.slug,
+          dishCount: restaurant.dishes.length,
+          url: `/${restaurant.city.slug}/${bestDish.slug}`
+        }
+      })
 
     // Combine and limit to 5 total results
     const results = [...dishResults, ...restaurantResults].slice(0, 5)

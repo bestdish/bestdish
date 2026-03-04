@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Search, Loader2, Star } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { FOCUS_CITY_SLUG } from '@/lib/config'
 
 interface SearchResult {
   type: 'dish' | 'restaurant'
@@ -149,13 +150,19 @@ export default function SearchBar({ variant = 'header', onResultClick }: SearchB
                 <div className="font-bold text-foreground truncate" style={{ fontFamily: 'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
                   {result.name}
                 </div>
-                <div className="text-sm text-muted-foreground truncate">
-                  {result.type === 'dish' ? (
-                    <span>{result.restaurantName} · {result.cityName}</span>
-                  ) : (
-                    <span>{result.cityName}</span>
-                  )}
-                </div>
+                {(result.type === 'dish' || result.citySlug !== FOCUS_CITY_SLUG) && (
+                  <div className="text-sm text-muted-foreground truncate">
+                    {result.type === 'dish' ? (
+                      result.citySlug === FOCUS_CITY_SLUG ? (
+                        <span>{result.restaurantName}</span>
+                      ) : (
+                        <span>{result.restaurantName} · {result.cityName}</span>
+                      )
+                    ) : (
+                      <span>{result.cityName}</span>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Rating/Count */}

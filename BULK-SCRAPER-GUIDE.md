@@ -28,8 +28,7 @@ Make sure you have:
 - Manchester city in your database (`slug: 'manchester'`)
 - Environment variables set:
   - `GEMINI_API_KEY`
-  - `GOOGLE_CUSTOM_SEARCH_API_KEY`
-  - `GOOGLE_SEARCH_ENGINE_ID`
+  - `SERPER_API_KEY` (get one at https://serper.dev/api-key - 2,500 free queries)
 
 ### 2. Run the Script
 

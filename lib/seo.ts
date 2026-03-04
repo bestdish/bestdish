@@ -24,6 +24,7 @@ export function generateCitySchema(city: {
     slug: string
     rating?: number | null
     cuisine?: string | null
+    bestDishSlug?: string | null
   }>
 }) {
   return {
@@ -35,7 +36,9 @@ export function generateCitySchema(city: {
     "hasPart": city.restaurants.map(restaurant => ({
       "@type": "Restaurant",
       "name": restaurant.name,
-      "url": `${process.env.NEXT_PUBLIC_SITE_URL}/${city.slug}/${restaurant.slug}`,
+      "url": restaurant.bestDishSlug
+        ? `${process.env.NEXT_PUBLIC_SITE_URL}/${city.slug}/${restaurant.bestDishSlug}`
+        : `${process.env.NEXT_PUBLIC_SITE_URL}/${city.slug}`,
       "aggregateRating": restaurant.rating ? {
         "@type": "AggregateRating",
         "ratingValue": restaurant.rating.toString(),

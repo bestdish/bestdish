@@ -110,7 +110,7 @@ export default function PendingReviewsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 p-8">
+    <div className="min-h-screen bg-gray-950 p-4 sm:p-6 md:p-8">
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="space-y-2">
           <h1 className="text-4xl font-bold text-gray-100">Review Moderation</h1>
