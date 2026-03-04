@@ -24,6 +24,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Create logs directory
+        run: mkdir -p logs
+
       - name: Run database sync
         env:
           # Production database (source)
