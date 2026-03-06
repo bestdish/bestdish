@@ -51,10 +51,16 @@ jobs:
           path: logs/sync-prod-to-dev-*.log
           retention-days: 30
 
+      - name: Display sync logs on failure
+        if: failure()
+        run: |
+          echo "::error::Database sync failed! Log output:"
+          cat logs/sync-prod-to-dev-*.log 2>/dev/null || echo "(No log file - script may have failed before run())"
+
       - name: Notify on failure
         if: failure()
         run: |
-          echo "::error::Database sync failed! Check the logs for details."
+          echo "::error::Database sync failed! Check the logs above and the sync-logs artifact for details."
           # Add notification service here (Slack, email, etc.)
 
 

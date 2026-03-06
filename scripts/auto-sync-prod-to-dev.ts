@@ -6,7 +6,7 @@
  */
 
 import { PrismaClient } from '@prisma/client'
-import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'fs'
+import { writeFileSync, mkdirSync, existsSync } from 'fs'
 import { join } from 'path'
 
 const PROD_URL = process.env.PROD_DATABASE_URL
@@ -130,6 +130,7 @@ async function run() {
     if (err instanceof Error && err.stack) log(err.stack)
     await prodPrisma.$disconnect().catch(() => {})
     await devPrisma.$disconnect().catch(() => {})
+    writeFileSync(logPath, logLines.join('\n')) // Must write before exit - process.exit skips finally
     process.exit(1)
   } finally {
     writeFileSync(logPath, logLines.join('\n'))
