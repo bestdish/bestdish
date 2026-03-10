@@ -12,8 +12,21 @@ import { join } from 'path'
 const PROD_URL = process.env.PROD_DATABASE_URL
 const DEV_URL = process.env.DEV_DATABASE_URL
 
+function writeEarlyLog(msg: string) {
+  const logDir = join(process.cwd(), 'logs')
+  if (!existsSync(logDir)) mkdirSync(logDir, { recursive: true })
+  const logPath = join(logDir, `sync-prod-to-dev-${Date.now()}.log`)
+  writeFileSync(logPath, `[${new Date().toISOString()}] ${msg}\n`)
+  return logPath
+}
+
 if (!PROD_URL || !DEV_URL) {
-  console.error('❌ Missing PROD_DATABASE_URL or DEV_DATABASE_URL')
+  const missing = []
+  if (!PROD_URL) missing.push('PROD_DATABASE_URL')
+  if (!DEV_URL) missing.push('DEV_DATABASE_URL')
+  const msg = `❌ Missing required secrets: ${missing.join(', ')}. Add them in GitHub repo Settings → Secrets and variables → Actions.`
+  console.error(msg)
+  writeEarlyLog(msg)
   process.exit(1)
 }
 

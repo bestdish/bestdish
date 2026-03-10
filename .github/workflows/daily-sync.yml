@@ -27,6 +27,18 @@ jobs:
       - name: Create logs directory
         run: mkdir -p logs
 
+      - name: Verify required secrets
+        run: |
+          if [ -z "${{ secrets.PROD_DATABASE_URL }}" ]; then
+            echo "::error::PROD_DATABASE_URL secret is not set. Add it in repo Settings → Secrets → Actions."
+            exit 1
+          fi
+          if [ -z "${{ secrets.DEV_DATABASE_URL }}" ]; then
+            echo "::error::DEV_DATABASE_URL secret is not set. Add it in repo Settings → Secrets → Actions."
+            exit 1
+          fi
+          echo "Required secrets verified"
+
       - name: Run database sync
         env:
           # Production database (source)
@@ -50,6 +62,7 @@ jobs:
           name: sync-logs-${{ github.run_number }}
           path: logs/sync-prod-to-dev-*.log
           retention-days: 30
+          if-no-files-found: ignore
 
       - name: Display sync logs on failure
         if: failure()
