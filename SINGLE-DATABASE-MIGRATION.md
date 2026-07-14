@@ -91,8 +91,8 @@ PROD_SUPABASE_URL=...
 PROD_SUPABASE_SERVICE_ROLE_KEY=...
 
 # Replace with single production config:
-DATABASE_URL=postgresql://postgres.yoeguahpdrtctrvaheer:***REDACTED***@aws-1-eu-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true
-DIRECT_URL=postgresql://postgres:***REDACTED***@db.yoeguahpdrtctrvaheer.supabase.co:5432/postgres
+DATABASE_URL=postgresql://postgres.yoeguahpdrtctrvaheer:<DB_PASSWORD_ROTATE_ME>@aws-1-eu-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true
+DIRECT_URL=postgresql://postgres:<DB_PASSWORD_ROTATE_ME>@db.yoeguahpdrtctrvaheer.supabase.co:5432/postgres
 NEXT_PUBLIC_SUPABASE_URL=https://yoeguahpdrtctrvaheer.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=[production anon key]
 SUPABASE_SERVICE_ROLE_KEY=[production service role key]

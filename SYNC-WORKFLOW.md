@@ -28,8 +28,8 @@
 cd /Users/nate/Desktop/bestdish/bestdish
 
 # Set both database URLs
-export PROD_DATABASE_URL="postgresql://postgres.yoeguahpdrtctrvaheer:***REDACTED***@aws-1-eu-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
-export DEV_DATABASE_URL="postgresql://postgres.brwejqxzcpjxmxxagbtp:***REDACTED***@aws-1-eu-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
+export PROD_DATABASE_URL="postgresql://postgres.yoeguahpdrtctrvaheer:<DB_PASSWORD_ROTATE_ME>@aws-1-eu-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
+export DEV_DATABASE_URL="postgresql://postgres.brwejqxzcpjxmxxagbtp:<DB_PASSWORD_ROTATE_ME>@aws-1-eu-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
 
 # Run sync
 npx tsx scripts/sync-prod-to-dev.ts

@@ -8,7 +8,7 @@
 
 - **Live Site:** https://bestdish.co.uk
 - **Manchester:** https://bestdish.co.uk/manchester
-- **Admin Panel:** https://bestdish.co.uk/admin (username: `admin`, password: `***REDACTED***`)
+- **Admin Panel:** https://bestdish.co.uk/admin (username: `admin`, password: `<ADMIN_PASSWORD>`)
 - **Instagram:** @bestdish.mcr (posts daily at 4pm automatically!)
 - **n8n:** http://localhost:5678 (automation platform - not needed unless making changes)
 - **Make.com:** https://www.make.com (Instagram automation - just needs to be toggled ON)

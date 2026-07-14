@@ -6,8 +6,15 @@ export function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith('/admin')) {
     // Check for existing session cookie first
     const sessionCookie = request.cookies.get('admin_session')
-    const validUser = process.env.ADMIN_USERNAME || 'admin'
-    const validPassword = process.env.ADMIN_PASSWORD || 'changeme123'
+    const validUser = process.env.ADMIN_USERNAME
+    const validPassword = process.env.ADMIN_PASSWORD
+
+    // Fail closed: never fall back to a well-known default credential. If admin
+    // auth isn't configured, deny access entirely instead of exposing a backdoor.
+    if (!validUser || !validPassword) {
+      return new NextResponse('Admin authentication is not configured', { status: 503 })
+    }
+
     const expectedSession = Buffer.from(`${validUser}:${validPassword}`).toString('base64')
     
     // If valid session exists, allow access

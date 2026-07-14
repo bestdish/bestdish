@@ -48,11 +48,11 @@
 ## New Credentials
 
 **Database Password (Both Projects):**
-- `***REDACTED***` (clean, no special characters)
+- `<DB_PASSWORD_ROTATE_ME>` (clean, no special characters)
 
 **Admin Panel:**
 - Username: `admin`
-- Password: `***REDACTED***`
+- Password: `<ADMIN_PASSWORD>`
 - URL: https://bestdish.co.uk/admin (or /admin on localhost)
 
 ---

@@ -8,7 +8,7 @@
 ## 🎯 What We Accomplished Today
 
 ### 1. ✅ Fixed All API Keys
-- **Google Places API:** `***REDACTED***` ✅
+- **Google Places API:** `<GOOGLE_PLACES_API_KEY>` ✅
 - **Google Custom Search:** `***REDACTED***` ✅
 - **Search Engine ID:** `b7cd7b65f9da24548` ✅
 - **Gemini AI:** (set in .env / Vercel only, do not commit) ✅

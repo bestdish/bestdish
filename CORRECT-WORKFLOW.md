@@ -53,8 +53,8 @@ npx vercel --prod
 ```bash
 cd /Users/nate/Desktop/bestdish/bestdish
 
-export DEV_DATABASE_URL="postgresql://postgres.brwejqxzcpjxmxxagbtp:***REDACTED***@aws-1-eu-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
-export PROD_DATABASE_URL="postgresql://postgres.yoeguahpdrtctrvaheer:***REDACTED***@aws-1-eu-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
+export DEV_DATABASE_URL="postgresql://postgres.brwejqxzcpjxmxxagbtp:<DB_PASSWORD_ROTATE_ME>@aws-1-eu-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
+export PROD_DATABASE_URL="postgresql://postgres.yoeguahpdrtctrvaheer:<DB_PASSWORD_ROTATE_ME>@aws-1-eu-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
 
 npx tsx scripts/deploy-dev-to-prod.ts
 ```

@@ -51,7 +51,7 @@ npx vercel --prod
 - Test the changes on live site
 - Check admin panel: https://bestdish.co.uk/admin
   - Username: `admin`
-  - Password: `***REDACTED***`
+  - Password: `<ADMIN_PASSWORD>`
 
 ---
 
@@ -153,7 +153,7 @@ npx tsx scripts/scrape-manchester.ts
 
 ### Admin Panel
 - **Username:** admin
-- **Password:** ***REDACTED***
+- **Password:** <ADMIN_PASSWORD>
 
 ### Environment Files
 - **Local:** `.env` (points to development database)

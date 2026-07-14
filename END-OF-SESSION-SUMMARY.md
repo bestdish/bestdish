@@ -122,7 +122,7 @@ bash start-dev.sh
 
 ## 🔑 All API Keys (Updated & Working)
 
-**Google Places:** `***REDACTED***`  
+**Google Places:** `<GOOGLE_PLACES_API_KEY>`  
 **Google Custom Search:** `***REDACTED***`  
 **Search Engine ID:** `b7cd7b65f9da24548`  
 **Gemini AI:** (set in .env only, do not commit)

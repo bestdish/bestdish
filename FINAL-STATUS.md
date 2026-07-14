@@ -43,12 +43,12 @@
 ## 🔐 Credentials
 
 ### Database Password (Both Projects)
-- `***REDACTED***`
+- `<DB_PASSWORD_ROTATE_ME>`
 
 ### Admin Panel
 - URL: https://bestdish.co.uk/admin
 - Username: `admin`
-- Password: `***REDACTED***`
+- Password: `<ADMIN_PASSWORD>`
 
 ### Supabase Projects
 - Production: https://supabase.com/dashboard/project/yoeguahpdrtctrvaheer
@@ -61,7 +61,7 @@
 ### The Secret Sauce (Port 6543!)
 **DATABASE_URL must use port 6543 for Supabase pooler:**
 ```
-postgresql://postgres.yoeguahpdrtctrvaheer:***REDACTED***@aws-1-eu-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true
+postgresql://postgres.yoeguahpdrtctrvaheer:<DB_PASSWORD_ROTATE_ME>@aws-1-eu-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true
 ```
 
 **Why?**

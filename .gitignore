@@ -37,6 +37,12 @@ yarn-error.log*
 .env.bak
 .env.before-migration-backup
 
+# Plaintext env references — these contain REAL secrets, keep local only
+env-*.txt
+
+# Temporary access token handed to the agent (delete + revoke after use)
+.vercel-token
+
 # vercel
 .vercel
 
